@@ -1,0 +1,339 @@
+import { useState, useEffect } from "react";
+import {
+  CCard, CCardBody, CCardHeader, CCardTitle, CForm, CFormInput, CButton, CAlert,
+  CTable, CTableHead, CTableRow, CTableHeaderCell, CTableBody, CTableDataCell,
+  CPagination, CPaginationItem, CModal, CModalHeader, CModalTitle, CModalBody, CModalFooter, CCol, CRow
+} from "@coreui/react";
+import {apiUrl} from "../../../api"
+const CrudCortes = () => {
+  const [nombre, setNombre] = useState("");
+  const [fechaInicio, setFechaInicio] = useState("");
+  const [fechaFin, setFechaFin] = useState("");
+  const [mensaje, setMensaje] = useState("");
+  const [error, setError] = useState("");
+  const [cortes, setCortes] = useState([]);
+  const [editId, setEditId] = useState(null);
+  const [editNombre, setEditNombre] = useState("");
+  const [editFechaInicio, setEditFechaInicio] = useState("");
+  const [editFechaFin, setEditFechaFin] = useState("");
+  const [busqueda, setBusqueda] = useState("");
+  const [pagina, setPagina] = useState(1);
+  const registrosPorPagina = 3;
+
+  // Modal para confirmar eliminación
+  const [modalEliminar, setModalEliminar] = useState(false);
+  const [idEliminar, setIdEliminar] = useState(null);
+
+  // Obtener cortes al cargar
+  const fetchCortes = async () => {
+    const res = await fetch(apiUrl+"/listarcortes");
+    const data = await res.json();
+    setCortes(data.cortes || []);
+  };
+
+  useEffect(() => {
+    fetchCortes();
+  }, []);
+
+  // Crear corte
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setMensaje("");
+    setError("");
+    if (!nombre || !fechaInicio || !fechaFin) {
+      setError("Todos los campos son obligatorios");
+      setTimeout(() => setError(""), 2500);
+      return;
+    }
+    try {
+      const res = await fetch(apiUrl+"/crearcortes", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          nombre,
+          fecha_inicio: fechaInicio,
+          fecha_fin: fechaFin
+        })
+      });
+      const data = await res.json();
+      if (res.ok) {
+        setMensaje(data.mensaje);
+        setNombre("");
+        setFechaInicio("");
+        setFechaFin("");
+        fetchCortes();
+        setTimeout(() => setMensaje(""), 2500);
+      } else {
+        setError(data.mensaje || "Error al crear corte");
+        setTimeout(() => setError(""), 2500);
+      }
+    } catch (err) {
+      setError("Error de conexión");
+      setTimeout(() => setError(""), 2500);
+    }
+  };
+
+  // Eliminar corte (abre modal)
+  const handleEliminar = (id) => {
+    setIdEliminar(id);
+    setModalEliminar(true);
+  };
+
+  // Confirmar eliminación
+  const confirmarEliminar = async () => {
+    try {
+      const res = await fetch(apiUrl+`/eliminarcortes/${idEliminar}`, {
+        method: "DELETE"
+      });
+      const data = await res.json();
+      if (res.ok) {
+        setMensaje(data.mensaje);
+        fetchCortes();
+        setTimeout(() => setMensaje(""), 2500);
+      } else {
+        setError(data.mensaje || "Error al eliminar corte");
+        setTimeout(() => setError(""), 2500);
+      }
+    } catch (err) {
+      setError("Error de conexión");
+      setTimeout(() => setError(""), 2500);
+    }
+    setModalEliminar(false);
+    setIdEliminar(null);
+  };
+
+  // Iniciar edición
+  const handleEditInit = (corte) => {
+    setEditId(corte.id_corte);
+    setEditNombre(corte.nombre);
+    setEditFechaInicio(corte.fecha_inicio);
+    setEditFechaFin(corte.fecha_fin);
+    setMensaje("");
+    setError("");
+  };
+
+  // Cancelar edición
+  const handleEditCancel = () => {
+    setEditId(null);
+    setEditNombre("");
+    setEditFechaInicio("");
+    setEditFechaFin("");
+  };
+
+  // Guardar edición
+  const handleEditSave = async () => {
+    if (!editNombre || !editFechaInicio || !editFechaFin) {
+      setError("Todos los campos son obligatorios");
+      setTimeout(() => setError(""), 2500);
+      return;
+    }
+    try {
+      const res = await fetch(apiUrl+`/editarcortes/${editId}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          nombre: editNombre,
+          fecha_inicio: editFechaInicio,
+          fecha_fin: editFechaFin
+        })
+      });
+      const data = await res.json();
+      if (res.ok) {
+        setMensaje(data.mensaje);
+        setEditId(null);
+        fetchCortes();
+        setTimeout(() => setMensaje(""), 2500);
+      } else {
+        setError(data.mensaje || "Error al editar corte");
+        setTimeout(() => setError(""), 2500);
+      }
+    } catch (err) {
+      setError("Error de conexión");
+      setTimeout(() => setError(""), 2500);
+    }
+  };
+
+  // Filtrar cortes por nombre o fecha
+  const cortesFiltrados = cortes.filter(corte =>
+    corte.nombre.toLowerCase().includes(busqueda.toLowerCase()) ||
+    (corte.fecha_inicio && corte.fecha_inicio.includes(busqueda)) ||
+    (corte.fecha_fin && corte.fecha_fin.includes(busqueda))
+  );
+
+  // Paginación
+  const totalPaginas = Math.ceil(cortesFiltrados.length / registrosPorPagina);
+  const inicio = (pagina - 1) * registrosPorPagina;
+  const cortesPaginados = cortesFiltrados.slice(inicio, inicio + registrosPorPagina);
+
+  useEffect(() => {
+    setPagina(1); // Reinicia a la primera página al filtrar
+  }, [busqueda]);
+
+  // Función para mostrar solo la fecha (sin hora)
+  const soloFecha = (fecha) => fecha ? fecha.substring(0, 10) : "";
+
+  return (
+    <CCard className="shadow-sm mt-4" style={{ background: "#f1f3f0"}}>
+      <CCardHeader style={{ background: "#114c5f", color: "white" }}>
+        <CCardTitle>Gestión de Momentos</CCardTitle>
+      </CCardHeader>
+      <CCardBody>
+        {mensaje && <CAlert color="success">{mensaje}</CAlert>}
+        {error && <CAlert color="danger">{error}</CAlert>}
+        <CRow className="justify-content-center">
+          <CCol xs={12} md={8} lg={6}>
+            <CForm onSubmit={handleSubmit} className="mb-4">
+              <CFormInput
+                label="Nombre del momento"
+                placeholder="Ejm primer momento"
+                value={nombre}
+                onChange={e => setNombre(e.target.value)}
+                className="mb-3"
+                required
+              />
+              <CFormInput
+                label="Fecha de Inicio"
+                type="date"
+                value={fechaInicio}
+                onChange={e => setFechaInicio(e.target.value)}
+                className="mb-3"
+                required
+              />
+              <CFormInput
+                label="Fecha de Fin"
+                type="date"
+                value={fechaFin}
+                onChange={e => setFechaFin(e.target.value)}
+                className="mb-3"
+                required
+              />
+              <CButton type="submit" color="primary" style={{ background: "#114c5f", border: "none" }}>
+                Crear Corte
+              </CButton>
+            </CForm>
+          </CCol>
+        </CRow>
+
+        {/* Barra de filtrado */}
+        <CFormInput
+          type="text"
+          placeholder="Filtrar por nombre o fecha..."
+          value={busqueda}
+          onChange={e => setBusqueda(e.target.value)}
+          className="mb-3"
+        />
+
+        <CTable hover responsive bordered align="middle">
+          <CTableHead color="light">
+            <CTableRow style={{ textAlign: "center" }}>
+              <CTableHeaderCell>Nombre</CTableHeaderCell>
+              <CTableHeaderCell>Fecha de Inicio</CTableHeaderCell>
+              <CTableHeaderCell>Fecha de Fin</CTableHeaderCell>
+              <CTableHeaderCell>Acciones</CTableHeaderCell>
+            </CTableRow>
+          </CTableHead>
+          <CTableBody style={{ textAlign: "center" }}>
+            {cortesPaginados.map(corte => (
+              <CTableRow key={corte.id_corte}>
+                <CTableDataCell>
+                  {editId === corte.id_corte ? (
+                    <CFormInput
+                      value={editNombre}
+                      onChange={e => setEditNombre(e.target.value)}
+                      required
+                    />
+                  ) : (
+                    corte.nombre
+                  )}
+                </CTableDataCell>
+                <CTableDataCell>
+                  {editId === corte.id_corte ? (
+                    <CFormInput
+                      type="date"
+                      value={editFechaInicio}
+                      onChange={e => setEditFechaInicio(e.target.value)}
+                      required
+                    />
+                  ) : (
+                    soloFecha(corte.fecha_inicio)
+                  )}
+                </CTableDataCell>
+                <CTableDataCell>
+                  {editId === corte.id_corte ? (
+                    <CFormInput
+                      type="date"
+                      value={editFechaFin}
+                      onChange={e => setEditFechaFin(e.target.value)}
+                      required
+                    />
+                  ) : (
+                    soloFecha(corte.fecha_fin)
+                  )}
+                </CTableDataCell>
+                <CTableDataCell>
+                  {editId === corte.id_corte ? (
+                    <>
+                      <CButton style={{ background: "white", color: "green", borderColor:'green' }} size="sm" className="me-2" onClick={handleEditSave}>
+                        Guardar
+                      </CButton>
+                      <CButton style={{ background: "white", color: "red", borderColor:'red' }} size="sm" onClick={handleEditCancel}>
+                        Cancelar
+                      </CButton>
+                    </>
+                  ) : (
+                    <>
+                      <CButton style={{ background: "white", color: "#114c5f", borderColor:'#114c5f' }} size="sm" className="me-2" onClick={() => handleEditInit(corte)}>
+                        Editar
+                      </CButton>
+                      <CButton style={{ background: "white", color: "red", borderColor:'red' }} size="sm" onClick={() => handleEliminar(corte.id_corte)}>
+                        Eliminar
+                      </CButton>
+                    </>
+                  )}
+                </CTableDataCell>
+              </CTableRow>
+            ))}
+          </CTableBody>
+        </CTable>
+
+        {/* Paginación */}
+        {totalPaginas > 1 && (
+          <div className="d-flex justify-content-center mt-3">
+            <CPagination align="center">
+              {[...Array(totalPaginas)].map((_, idx) => (
+                <CPaginationItem
+                  key={idx}
+                  active={pagina === idx + 1}
+                  onClick={() => setPagina(idx + 1)}
+                  style={{ cursor: "pointer" }}
+                >
+                  {idx + 1}
+                </CPaginationItem>
+              ))}
+            </CPagination>
+          </div>
+        )}
+
+        {/* Modal de confirmación para eliminar */}
+        <CModal visible={modalEliminar} onClose={() => setModalEliminar(false)}>
+          <CModalHeader>
+            <CModalTitle>Confirmar Eliminación</CModalTitle>
+          </CModalHeader>
+          <CModalBody>
+            ¿Seguro que desea eliminar este corte?
+          </CModalBody>
+          <CModalFooter>
+            <CButton color="danger" onClick={confirmarEliminar}>
+              Eliminar
+            </CButton>
+            <CButton color="secondary" onClick={() => setModalEliminar(false)}>
+              Cancelar
+            </CButton>
+          </CModalFooter>
+        </CModal>
+      </CCardBody>
+    </CCard>
+  );
+};
+
+export default CrudCortes;
