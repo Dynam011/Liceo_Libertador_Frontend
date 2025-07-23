@@ -22,7 +22,7 @@ import { cilUser, cilLockLocked, cilAccountLogout } from '@coreui/icons';
 
 // Importa la imagen correctamente para el build
 import liceo2 from 'src/assets/images/liceo2.webp';
-import {apiUrl} from "../../api"
+import {apiUrl} from "../../../api"
 const Login = () => {
   const navigate = useNavigate();
   const [usuario, setUsuario] = useState('');
