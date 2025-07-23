@@ -1,13 +1,14 @@
 import React, { useState, useEffect } from "react";
 import {
-  CCard, CCardBody, CCardHeader, CCardTitle, CForm, CFormSelect, CFormInput, CButton, CAlert, CRow, CCol,
-  CTable, CTableHead, CTableRow, CTableHeaderCell, CTableBody, CTableDataCell, CModal, CModalHeader, CModalTitle, CModalBody, CModalFooter, CPagination, CPaginationItem
+  CContainer, CRow, CCol, CForm, CFormSelect, CFormInput, CButton, CAlert,
+  CTable, CTableHead, CTableRow, CTableHeaderCell, CTableBody, CTableDataCell,
+  CModal, CModalHeader, CModalTitle, CModalBody, CModalFooter, CPagination, CPaginationItem,
 } from "@coreui/react";
-import {apiUrl} from "../../../api"
+import { apiUrl } from "../../../api";
 const API = apiUrl;
 
-// --- Crear Director ---
-function CrearDirector({ onSuccess }) {
+// --- MODAL para crear director ---
+function ModalCrearDirector({ visible, onClose, onSuccess }) {
   const [director, setDirector] = useState({
     nombre: "",
     apellido: "",
@@ -54,6 +55,7 @@ function CrearDirector({ onSuccess }) {
           telefono: ""
         });
         if (onSuccess) onSuccess();
+        onClose();
       } else {
         setTipo("danger");
         setMensaje(data.mensaje || "Error al crear director");
@@ -65,13 +67,13 @@ function CrearDirector({ onSuccess }) {
   };
 
   return (
-    <CCard className="shadow mb-4">
-      <CCardHeader style={{ background: "#114c5f", color: "#fff" }}>
-        <CCardTitle>Registrar Director</CCardTitle>
-      </CCardHeader>
-      <CCardBody>
+    <CModal visible={visible} onClose={onClose} alignment="center" size="md">
+      <CModalHeader className="bg-info" style={{ borderRadius: 8 }}>
+        <CModalTitle className="text-white fs-6">Registrar Director</CModalTitle>
+      </CModalHeader>
+      <CModalBody>
         <CForm onSubmit={handleSubmit}>
-          <CRow className="g-3">
+          <CRow className="g-2">
             <CCol md={6}>
               <CFormInput label="Nombre" name="nombre" value={director.nombre} onChange={handleChange} required />
             </CCol>
@@ -86,17 +88,17 @@ function CrearDirector({ onSuccess }) {
             </CCol>
             <CCol md={6}>
               <CFormSelect
-              label="Tipo de documento"
-              name="tipo_documento"
-              value={director.tipo_documento}
-              onChange={handleChange}
-              required
-            >
-              <option value="">Seleccione tipo</option>
-              <option value={1}>V</option>
-              <option value={2}>E</option>
-              <option value={3}>P</option>
-            </CFormSelect>
+                label="Tipo de documento"
+                name="tipo_documento"
+                value={director.tipo_documento}
+                onChange={handleChange}
+                required
+              >
+                <option value="">Seleccione tipo</option>
+                <option value={1}>V</option>
+                <option value={2}>E</option>
+                <option value={3}>P</option>
+              </CFormSelect>
             </CCol>
             <CCol md={6}>
               <CFormInput label="Email" name="email" type="email" value={director.email} onChange={handleChange} required />
@@ -106,9 +108,7 @@ function CrearDirector({ onSuccess }) {
             </CCol>
             <CCol xs={12}>
               <div className="d-grid">
-                <CButton type="submit" style={{ background: "#114c5f", color: "#fff" }}>
-                  Registrar
-                </CButton>
+                <CButton type="submit" color="info">Registrar</CButton>
               </div>
             </CCol>
             {mensaje && (
@@ -120,13 +120,13 @@ function CrearDirector({ onSuccess }) {
             )}
           </CRow>
         </CForm>
-      </CCardBody>
-    </CCard>
+      </CModalBody>
+    </CModal>
   );
 }
 
-// --- Asignar Director a Año Escolar ---
-function AsignarDirectorAnioEscolar({ onSuccess }) {
+// --- MODAL para asignar director a año escolar ---
+function ModalAsignarDirectorAnioEscolar({ visible, onClose, onSuccess }) {
   const [form, setForm] = useState({
     director_id: "",
     id_año_escolar: "",
@@ -137,7 +137,7 @@ function AsignarDirectorAnioEscolar({ onSuccess }) {
   const [mensaje, setMensaje] = useState("");
   const [tipoMensaje, setTipoMensaje] = useState("success");
 
-  const cargarDatos = () => {
+  useEffect(() => {
     fetch(`${API}/directores`)
       .then(res => res.json())
       .then(data => setDirectores(data.directores || []))
@@ -146,12 +146,7 @@ function AsignarDirectorAnioEscolar({ onSuccess }) {
       .then(res => res.json())
       .then(data => setAniosEscolares(data.aniosEscolaresAdmin || []))
       .catch(() => setAniosEscolares([]));
-  };
-
-  useEffect(() => {
-    cargarDatos();
-    // eslint-disable-next-line
-  }, []);
+  }, [visible]);
 
   useEffect(() => {
     if (mensaje) {
@@ -183,7 +178,7 @@ function AsignarDirectorAnioEscolar({ onSuccess }) {
           fecha_inicio: ""
         });
         if (onSuccess) onSuccess();
-        cargarDatos();
+        onClose();
       } else {
         setTipoMensaje("danger");
         setMensaje(data.mensaje || "Error al asignar director");
@@ -195,13 +190,13 @@ function AsignarDirectorAnioEscolar({ onSuccess }) {
   };
 
   return (
-    <CCard className="shadow mb-4">
-      <CCardHeader style={{ background: "#114c5f", color: "#fff" }}>
-        <CCardTitle>Asignar Director a Año Escolar</CCardTitle>
-      </CCardHeader>
-      <CCardBody>
+    <CModal visible={visible} onClose={onClose} alignment="center" size="md">
+      <CModalHeader className="bg-info" style={{ borderRadius: 8 }}>
+        <CModalTitle className="text-white fs-6">Asignar Director a Año Escolar</CModalTitle>
+      </CModalHeader>
+      <CModalBody>
         <CForm onSubmit={handleSubmit}>
-          <CRow className="g-3 align-items-end">
+          <CRow className="g-2 align-items-end">
             <CCol md={6}>
               <CFormSelect
                 name="director_id"
@@ -244,9 +239,7 @@ function AsignarDirectorAnioEscolar({ onSuccess }) {
             </CCol>
             <CCol xs={12}>
               <div className="d-grid">
-                <CButton type="submit" style={{ background: "#114c5f", color: "#fff" }}>
-                  Asignar
-                </CButton>
+                <CButton type="submit" color="info">Asignar</CButton>
               </div>
             </CCol>
             {mensaje && (
@@ -258,41 +251,19 @@ function AsignarDirectorAnioEscolar({ onSuccess }) {
             )}
           </CRow>
         </CForm>
-      </CCardBody>
-    </CCard>
+      </CModalBody>
+    </CModal>
   );
 }
 
-// --- ListaDirectores (el módulo que enviaste) ---
-export default function DirectoresPage() {
-  // Para refrescar los selects después de crear/asignar
-  const [refresh, setRefresh] = useState(false);
-
-  const handleRefresh = () => setRefresh(r => !r);
-
-  return (
-    <div style={{ maxWidth: 1400, margin: "40px auto" }}>
-      <CRow className="mb-4">
-        <CCol md={6}>
-          <CrearDirector onSuccess={handleRefresh} key={refresh ? "crear1" : "crear0"} />
-        </CCol>
-        <CCol md={6}>
-          <AsignarDirectorAnioEscolar onSuccess={handleRefresh} key={refresh ? "asignar1" : "asignar0"} />
-        </CCol>
-      </CRow>
-      <ListaDirectores key={refresh ? "lista1" : "lista0"} />
-    </div>
-  );
-}
-
-// --- ListaDirectores reemplazado ---
+// --- ListaDirectores ---
 function ListaDirectores() {
   const [directores, setDirectores] = useState([]);
   const [search, setSearch] = useState("");
   const [editando, setEditando] = useState(null);
   const [form, setForm] = useState({});
   const [mensaje, setMensaje] = useState("");
-  const [showModal, setShowModal] = useState(false);
+  const [showModalEliminar, setShowModalEliminar] = useState(false);
   const [idAEliminar, setIdAEliminar] = useState(null);
 
   // Paginación
@@ -301,10 +272,10 @@ function ListaDirectores() {
   const totalPaginas = Math.ceil(directores.length / porPagina);
 
   const fetchDirectores = async (search = "") => {
-    const res = await fetch(`http://localhost:4000/directoresconanio${search ? `?search=${encodeURIComponent(search)}` : ""}`);
+    const res = await fetch(apiUrl+`/directoresconanio${search ? `?search=${encodeURIComponent(search)}` : ""}`);
     const data = await res.json();
     setDirectores(data.directores || []);
-    setPagina(1); // Reinicia a la primera página al buscar
+    setPagina(1);
   };
 
   useEffect(() => { fetchDirectores(); }, []);
@@ -321,13 +292,13 @@ function ListaDirectores() {
     fetchDirectores(search);
   };
 
-const handleEdit = (dir) => {
-  setEditando(dir.id);
-  setForm({
-    ...dir,
-    tipo_documento: dir.tipo_documento ? String(dir.tipo_documento) : "1"
-  });
-};
+  const handleEdit = (dir) => {
+    setEditando(dir.id);
+    setForm({
+      ...dir,
+      tipo_documento: dir.tipo_documento ? String(dir.tipo_documento) : "1"
+    });
+  };
 
   const handleCancel = () => {
     setEditando(null);
@@ -343,7 +314,7 @@ const handleEdit = (dir) => {
       ...form,
       tipo_documento: parseInt(form.tipo_documento, 10)
     };
-    const res = await fetch(`http://localhost:4000/directoreseditar/${editando}`, {
+    const res = await fetch(apiUrl+`/directoreseditar/${editando}`, {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(formToSend)
@@ -361,19 +332,19 @@ const handleEdit = (dir) => {
   // Abrir modal para eliminar
   const handleDelete = (id) => {
     setIdAEliminar(id);
-    setShowModal(true);
+    setShowModalEliminar(true);
   };
 
   // Confirmar eliminación
   const confirmarEliminar = async () => {
-    const res = await fetch(`http://localhost:4000/directoreseliminar/${idAEliminar}`, { method: "DELETE" });
+    const res = await fetch(apiUrl+`/directoreseliminar/${idAEliminar}`, { method: "DELETE" });
     if (res.ok) {
       setMensaje("Director eliminado");
       fetchDirectores(search);
     } else {
       setMensaje("Error eliminando director");
     }
-    setShowModal(false);
+    setShowModalEliminar(false);
     setIdAEliminar(null);
   };
 
@@ -382,46 +353,46 @@ const handleEdit = (dir) => {
 
   return (
     <>
-      <CCard className="mx-auto mt-4" style={{ maxWidth: 1200 }}>
-        <CCardHeader style={{ background: "#114c5f", color: "#fff" }}>
-          <CCardTitle>Directores</CCardTitle>
-        </CCardHeader>
-        <CCardBody>
-          <CForm onSubmit={handleSearch} className="mb-3">
-            <CRow>
-              <CCol md={10}>
-                <CFormInput
-                  placeholder="Buscar por nombre, apellido, cédula o año escolar"
-                  value={search}
-                  onChange={e => setSearch(e.target.value)}
-                />
-              </CCol>
-              <CCol md={2}>
-                <CButton type="submit" style={{backgroundColor:'#114c5f', color:'white', borderColor:'#114c5f'}} className="w-100">Buscar</CButton>
-              </CCol>
-            </CRow>
-          </CForm>
-          {mensaje && <div className="mb-2 text-success">{mensaje}</div>}
-          <CTable striped hover responsive>
-            <CTableHead style={{textAlign: 'center'}}>
-              <CTableRow>
-                <CTableHeaderCell>Tipo Doc.</CTableHeaderCell>
-                <CTableHeaderCell>Cédula</CTableHeaderCell>
-                <CTableHeaderCell>Nombre</CTableHeaderCell>
-                <CTableHeaderCell>Apellido</CTableHeaderCell>
-                <CTableHeaderCell>Título</CTableHeaderCell>
-                <CTableHeaderCell>Email</CTableHeaderCell>
-                <CTableHeaderCell>Teléfono</CTableHeaderCell>
-                <CTableHeaderCell>Año Escolar</CTableHeaderCell>
-                <CTableHeaderCell>Activo</CTableHeaderCell>
-                <CTableHeaderCell>Acciones</CTableHeaderCell>
-              </CTableRow>
-            </CTableHead>
-            <CTableBody style={{textAlign: 'center'}}>
-              {directoresPagina.map(dir => (
-                <CTableRow key={dir.id}>
-                  <CTableDataCell>
-                    <CFormSelect
+      <CContainer className="px-2">
+        <CRow className="mb-3">
+          <CCol xs={12} md={8}>
+            <CForm onSubmit={handleSearch}>
+              <CRow>
+                <CCol md={9} xs={8}>
+                  <CFormInput
+                    placeholder="Buscar por nombre, apellido, cédula o año escolar"
+                    value={search}
+                    onChange={e => setSearch(e.target.value)}
+                  />
+                </CCol>
+                <CCol md={3} xs={4}>
+                  <CButton type="submit" color="info" className="w-100">Buscar</CButton>
+                </CCol>
+              </CRow>
+            </CForm>
+          </CCol>
+        </CRow>
+        {mensaje && <CAlert color="success" className="mb-2">{mensaje}</CAlert>}
+        <CTable striped hover responsive>
+          <CTableHead style={{ textAlign: 'center' }}>
+            <CTableRow>
+              <CTableHeaderCell>Tipo Doc.</CTableHeaderCell>
+              <CTableHeaderCell>Cédula</CTableHeaderCell>
+              <CTableHeaderCell>Nombre</CTableHeaderCell>
+              <CTableHeaderCell>Apellido</CTableHeaderCell>
+              <CTableHeaderCell>Título</CTableHeaderCell>
+              <CTableHeaderCell>Email</CTableHeaderCell>
+              <CTableHeaderCell>Teléfono</CTableHeaderCell>
+              <CTableHeaderCell>Año Escolar</CTableHeaderCell>
+              <CTableHeaderCell>Activo</CTableHeaderCell>
+              <CTableHeaderCell>Acciones</CTableHeaderCell>
+            </CTableRow>
+          </CTableHead>
+          <CTableBody style={{ textAlign: 'center' }}>
+            {directoresPagina.map(dir => (
+              <CTableRow key={dir.id}>
+                <CTableDataCell>
+                  <CFormSelect
                     name="tipo_documento"
                     value={form.tipo_documento}
                     onChange={handleChange}
@@ -432,97 +403,94 @@ const handleEdit = (dir) => {
                     <option value="2">E</option>
                     <option value="3">P</option>
                   </CFormSelect>
-                  </CTableDataCell>
-                  <CTableDataCell>
-                    {editando === dir.id
-                      ? <CFormInput name="cedula" value={form.cedula} onChange={handleChange} size="sm" />
-                      : dir.cedula}
-                  </CTableDataCell>
-                  <CTableDataCell>
-                    {editando === dir.id
-                      ? <CFormInput name="nombre" value={form.nombre} onChange={handleChange} size="sm" />
-                      : dir.nombre}
-                  </CTableDataCell>
-                  <CTableDataCell>
-                    {editando === dir.id
-                      ? <CFormInput name="apellido" value={form.apellido} onChange={handleChange} size="sm" />
-                      : dir.apellido}
-                  </CTableDataCell>
-                  
-                  <CTableDataCell>
-                    {editando === dir.id
-                      ? <CFormInput name="titulo" value={form.titulo} onChange={handleChange} size="sm" />
-                      : dir.titulo}
-                  </CTableDataCell>
-                  
-                  <CTableDataCell>
-                    {editando === dir.id
-                      ? <CFormInput name="email" value={form.email} onChange={handleChange} size="sm" />
-                      : dir.email}
-                  </CTableDataCell>
-                  <CTableDataCell>
-                    {editando === dir.id
-                      ? <CFormInput name="telefono" value={form.telefono} onChange={handleChange} size="sm" />
-                      : dir.telefono}
-                  </CTableDataCell>
-                  <CTableDataCell>{dir.año_escolar}</CTableDataCell>
-                  <CTableDataCell>
-                    {editando === dir.id
-                      ? (
-                        <select name="activo" value={form.activo} onChange={handleChange} className="form-select form-select-sm">
-                          <option value={true}>Sí</option>
-                          <option value={false}>No</option>
-                        </select>
-                      )
-                      : dir.activo ? "Sí" : "No"}
-                  </CTableDataCell>
-                  <CTableDataCell>
-                    {editando === dir.id ? (
-                      <>
-                        <CButton style={{backgroundColor:'white', color:'green', borderColor:'green'}} size="sm" onClick={handleSave}>Guardar</CButton>{" "}
-                        <CButton style={{backgroundColor:'white', color:'red', borderColor:'red'}} size="sm" onClick={handleCancel}>Cancelar</CButton>
-                      </>
-                    ) : (
-                      <>
-                        <CButton style={{backgroundColor:'white', color:'blue', borderColor:'blue'}} size="sm" onClick={() => handleEdit(dir)}>Editar</CButton>{" "}
-                        <CButton style={{backgroundColor:'white', color:'red', borderColor:'red'}} size="sm" onClick={() => handleDelete(dir.id)}>Eliminar</CButton>
-                      </>
-                    )}
-                  </CTableDataCell>
-                </CTableRow>
-              ))}
-            </CTableBody>
-          </CTable>
-          {/* Paginación */}
-          {totalPaginas > 1 && (
-            <CPagination align="center" className="mt-3">
+                </CTableDataCell>
+                <CTableDataCell>
+                  {editando === dir.id
+                    ? <CFormInput name="cedula" value={form.cedula} onChange={handleChange} size="sm" />
+                    : dir.cedula}
+                </CTableDataCell>
+                <CTableDataCell>
+                  {editando === dir.id
+                    ? <CFormInput name="nombre" value={form.nombre} onChange={handleChange} size="sm" />
+                    : dir.nombre}
+                </CTableDataCell>
+                <CTableDataCell>
+                  {editando === dir.id
+                    ? <CFormInput name="apellido" value={form.apellido} onChange={handleChange} size="sm" />
+                    : dir.apellido}
+                </CTableDataCell>
+                <CTableDataCell>
+                  {editando === dir.id
+                    ? <CFormInput name="titulo" value={form.titulo} onChange={handleChange} size="sm" />
+                    : dir.titulo}
+                </CTableDataCell>
+                <CTableDataCell>
+                  {editando === dir.id
+                    ? <CFormInput name="email" value={form.email} onChange={handleChange} size="sm" />
+                    : dir.email}
+                </CTableDataCell>
+                <CTableDataCell>
+                  {editando === dir.id
+                    ? <CFormInput name="telefono" value={form.telefono} onChange={handleChange} size="sm" />
+                    : dir.telefono}
+                </CTableDataCell>
+                <CTableDataCell>{dir.año_escolar}</CTableDataCell>
+                <CTableDataCell>
+                  {editando === dir.id
+                    ? (
+                      <select name="activo" value={form.activo} onChange={handleChange} className="form-select form-select-sm">
+                        <option value={true}>Sí</option>
+                        <option value={false}>No</option>
+                      </select>
+                    )
+                    : dir.activo ? "Sí" : "No"}
+                </CTableDataCell>
+                <CTableDataCell>
+                  {editando === dir.id ? (
+                    <>
+                      <CButton color="success" size="sm" onClick={handleSave}>Guardar</CButton>{" "}
+                      <CButton color="danger" size="sm" onClick={handleCancel}>Cancelar</CButton>
+                    </>
+                  ) : (
+                    <>
+                      <CButton color="info" size="sm" onClick={() => handleEdit(dir)}>Editar</CButton>{" "}
+                      <CButton color="danger" size="sm" onClick={() => handleDelete(dir.id)}>Eliminar</CButton>
+                    </>
+                  )}
+                </CTableDataCell>
+              </CTableRow>
+            ))}
+          </CTableBody>
+        </CTable>
+        {/* Paginación */}
+        {totalPaginas > 1 && (
+          <CPagination align="center" className="mt-3">
+            <CPaginationItem
+              disabled={pagina === 1}
+              onClick={() => setPagina(pagina - 1)}
+            >
+              &laquo;
+            </CPaginationItem>
+            {Array.from({ length: totalPaginas }, (_, i) => (
               <CPaginationItem
-                disabled={pagina === 1}
-                onClick={() => setPagina(pagina - 1)}
+                key={i + 1}
+                active={pagina === i + 1}
+                onClick={() => setPagina(i + 1)}
               >
-                &laquo;
+                {i + 1}
               </CPaginationItem>
-              {Array.from({ length: totalPaginas }, (_, i) => (
-                <CPaginationItem
-                  key={i + 1}
-                  active={pagina === i + 1}
-                  onClick={() => setPagina(i + 1)}
-                >
-                  {i + 1}
-                </CPaginationItem>
-              ))}
-              <CPaginationItem
-                disabled={pagina === totalPaginas}
-                onClick={() => setPagina(pagina + 1)}
-              >
-                &raquo;
-              </CPaginationItem>
-            </CPagination>
-          )}
-        </CCardBody>
-      </CCard>
+            ))}
+            <CPaginationItem
+              disabled={pagina === totalPaginas}
+              onClick={() => setPagina(pagina + 1)}
+            >
+              &raquo;
+            </CPaginationItem>
+          </CPagination>
+        )}
+      </CContainer>
       {/* Modal de confirmación para eliminar */}
-      <CModal visible={showModal} onClose={() => setShowModal(false)}>
+      <CModal visible={showModalEliminar} onClose={() => setShowModalEliminar(false)}>
         <CModalHeader>
           <CModalTitle>Confirmar Eliminación</CModalTitle>
         </CModalHeader>
@@ -530,10 +498,49 @@ const handleEdit = (dir) => {
           ¿Seguro que desea eliminar este director?
         </CModalBody>
         <CModalFooter>
-          <CButton style={{backgroundColor:'white', color:'red', borderColor:'red'}} onClick={confirmarEliminar}>Eliminar</CButton>
-          <CButton style={{backgroundColor:'white', color:'blue', borderColor:'blue'}} variant="outline" onClick={() => setShowModal(false)}>Cancelar</CButton>
+          <CButton color="danger" onClick={confirmarEliminar}>Eliminar</CButton>
+          <CButton color="secondary" variant="outline" onClick={() => setShowModalEliminar(false)}>Cancelar</CButton>
         </CModalFooter>
       </CModal>
     </>
+  );
+}
+
+// --- Página principal ---
+export default function DirectoresPage() {
+  // Para refrescar los selects después de crear/asignar
+  const [refresh, setRefresh] = useState(false);
+  const [modalCrearVisible, setModalCrearVisible] = useState(false);
+  const [modalAsignarVisible, setModalAsignarVisible] = useState(false);
+
+  const handleRefresh = () => setRefresh(r => !r);
+
+  return (
+    <CContainer className="py-4 px-2">
+      <CRow className="mb-3 gx-2">
+        <CCol sm={6} xs={12}>
+          <CButton color="info" className="w-100 mb-2" onClick={() => setModalCrearVisible(true)}>
+            Registrar Director
+          </CButton>
+        </CCol>
+        <CCol sm={6} xs={12}>
+          <CButton color="info" className="w-100 mb-2" onClick={() => setModalAsignarVisible(true)}>
+            Asignar Director a Año Escolar
+          </CButton>
+        </CCol>
+      </CRow>
+      {/* Modales de crear y asignar */}
+      <ModalCrearDirector
+        visible={modalCrearVisible}
+        onClose={() => setModalCrearVisible(false)}
+        onSuccess={handleRefresh}
+      />
+      <ModalAsignarDirectorAnioEscolar
+        visible={modalAsignarVisible}
+        onClose={() => setModalAsignarVisible(false)}
+        onSuccess={handleRefresh}
+      />
+      <ListaDirectores key={refresh ? "lista1" : "lista0"} />
+    </CContainer>
   );
 }

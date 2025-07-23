@@ -3,7 +3,7 @@ import {
   CContainer, CRow, CCol, CCard, CCardHeader, CCardBody, CCardTitle,
   CForm, CFormLabel, CFormInput, CFormSelect, CButton, CAlert, CListGroup, CListGroupItem,
   CTable, CTableHead, CTableRow, CTableHeaderCell, CTableBody, CTableDataCell,
-  CModal, CModalHeader, CModalTitle, CModalBody, CModalFooter
+  CModal, CModalHeader, CModalTitle, CModalBody, CModalFooter, CAccordion , CAccordionItem, CAccordionHeader, CAccordionBody
 } from "@coreui/react";
 import {apiUrl} from "../../../api"
 // --- Componente principal unificado ---
@@ -41,7 +41,7 @@ const InscribirMateria = () => {
   const [busqueda, setBusqueda] = useState("");
   const [inscripcionesFiltradas, setInscripcionesFiltradas] = useState([]);
   const [modalMaterias, setModalMaterias] = useState(false);
-
+const [modalInscribir, setModalInscribir] = useState(false);
   const usuario = JSON.parse(localStorage.getItem("usuario") || "{}");
 
   // --- Efectos y funciones para Inscribir Estudiante ---
@@ -326,67 +326,145 @@ const InscribirMateria = () => {
 
   // --- RENDER ---
   return (
+  <CContainer fluid className="px-2 py-4" >
+      <CRow className="mb-4">
+        <CCol xs={12} md={6} className="d-flex gap-2 flex-row flex-md-row justify-content-start align-items-center mb-2 mb-md-0">
+          <CButton
+            color="info"
+            size="sm"
+            style={{
+              borderRadius: 10,
+              fontWeight: "bold",
+              fontSize: 15,
+              minWidth: 150,
+              boxShadow: "0 1px 6px #0bb5d4",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              border: "none",
+              background: "linear-gradient(95deg, #17b6ce 80%, #0bb5d4 100%)"
+            }}
+            className="py-2 px-3"
+            onClick={() => setModalInscribir(true)}
+          >
+            <span style={{ marginRight: 7, color: "#fff" }}>
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="#fff">
+                <path d="M12 12c2.7 0 8 1.34 8 4v2H4v-2c0-2.66 5.3-4 8-4zm0-2a4 4 0 1 0 0-8 4 4 0 0 0 0 8zm6 10v-1c0-2.21-4.03-4-6-4s-6 1.79-6 4v1h12zm2-8v2h-2v2h-2v-2h-2v-2h2v-2h2v2h2z" />
+              </svg>
+            </span>
+            Inscribir Estudiante
+          </CButton>
+          <CButton
+            color="primary"
+            size="sm"
+            style={{
+              borderRadius: 10,
+              fontWeight: "bold",
+              fontSize: 15,
+              minWidth: 150,
+              boxShadow: "0 1px 6px #114c5f",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              border: "none",
+              background: "linear-gradient(95deg, #114c5f 80%, #136170ff 100%)"
+            }}
+            className="py-2 px-3"
+            onClick={() => setModalMaterias(true)}
+          >
+            <span style={{ marginRight: 7, color: "#fff" }}>
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="#fff">
+                <path d="M19 3H5c-1.1 0-2 .9-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V5c0-1.1-.9-2-2-2zm0 16H5V5h14v14zm-7-2c-2.21 0-4-1.79-4-4V9h8v4c0 2.21-1.79 4-4 4zm-2-4a2 2 0 0 0 4 0v-2h-4v2z" />
+              </svg>
+            </span>
+            Inscribir Materias
+          </CButton>
+        </CCol>
+      </CRow>
 
-    <CContainer className="py-4">
-      <CRow className="justify-content-center">
-        <CCol xs={12} md={8} lg={7}>
-          <CCard className="shadow-sm mb-4">
-            <CCardHeader style={{ backgroundColor: "#114c5f", color: "white" }}>
-              <CCardTitle>Inscripción de Estudiantes</CCardTitle>
-            </CCardHeader>
-            <CCardBody>
-              {mensaje && (
-                <CAlert color={mensaje.includes("Error") ? "danger" : "success"} dismissible onClose={() => setMensaje("")}>
-                  {mensaje}
-                </CAlert>
-              )}
-              <CForm onSubmit={handleInscribir}>
-                <CFormLabel className="mt-2">Cédula del Estudiante</CFormLabel>
+      {/* MODAL ESTUDIANTE */}
+      <CModal
+        visible={modalInscribir}
+        onClose={() => setModalInscribir(false)}
+        size="md"
+        alignment="center"
+        backdrop="static"
+      >
+        <CModalHeader className="bg-info" style={{ borderRadius: 8 }}>
+          <CModalTitle className="text-white fs-6">
+            Inscripción de Estudiantes
+          </CModalTitle>
+        </CModalHeader>
+        <CModalBody style={{ background: "#f9fcfd", borderRadius: 8 }}>
+          {mensaje && (
+            <CAlert
+              color={mensaje.includes("Error") ? "danger" : "success"}
+              dismissible
+              onClose={() => setMensaje("")}
+            >
+              {mensaje}
+            </CAlert>
+          )}
+          <CForm onSubmit={handleInscribir}>
+            <CRow className="mb-3" xs={{ gutter: 2 }}>
+              <CCol xs={12} md={6}>
+                <CFormLabel className="fw-bold">Cédula del Estudiante</CFormLabel>
                 <CFormInput
                   type="text"
+                  size="sm"
                   value={cedulaEstudiante}
                   onChange={(e) => filtrarEstudiantes(e.target.value)}
                   placeholder="Ingrese la cédula"
                   autoComplete="off"
+                  className="mb-2"
                 />
                 {estudiantes.length > 0 && (
-                  <CListGroup className="mb-3 mt-2">
+                  <CListGroup className="mb-2">
                     {estudiantes.map((est) => (
                       <CListGroupItem
                         key={est.cedula}
                         style={{ cursor: "pointer" }}
                         onClick={() => handleSeleccionarEstudiante(est)}
-                        className="d-flex flex-column align-items-start"
+                        color="info"
+                        className="mb-1"
                       >
-                        <span style={{ fontWeight: "bold", color: "#114c5f" }}>
-                          {est.nombres} {est.apellidos}
-                        </span>
-                        <small className="text-muted">Cédula: {est.cedula}</small>
-                        <small className="text-muted">Fecha Nacimiento:   {est.fecha_nacimiento?.substring(0, 10)}</small>
-                        <small className="text-muted">Sexo: {est.sexo}</small>
+                        <span className="fw-bold">{est.nombres} {est.apellidos}</span>
+                        <small className="text-muted ms-2">Cédula: {est.cedula}</small>
+                        <small className="text-muted ms-2">Fecha: {est.fecha_nacimiento?.substring(0, 10)}</small>
+                        <small className="text-muted ms-2">Sexo: {est.sexo}</small>
                       </CListGroupItem>
                     ))}
                   </CListGroup>
                 )}
+              </CCol>
+              <CCol xs={12} md={6}>
                 {estudianteSeleccionado && (
-                  <CCard className="mb-3" style={{ background: "#eaf6f6", border: "1px solid #b2dfdb" }}>
-                    <CCardBody className="py-2">
-                      <div style={{ fontWeight: "bold", color: "#114c5f", fontSize: "1.1rem" }}>
-                        {estudianteSeleccionado.nombres} {estudianteSeleccionado.apellidos}
-                      </div>
-                      <div className="text-muted" style={{ fontSize: "0.95rem" }}>
-                        Cédula: {estudianteSeleccionado.cedula} <br />
-                        Fecha Nac: {estudianteSeleccionado.fecha_nacimiento} <br />
-                        Sexo: {estudianteSeleccionado.sexo}
-                      </div>
-                    </CCardBody>
-                  </CCard>
+                  <div
+                    className="mb-2"
+                    style={{
+                      background: "#eaf6f6",
+                      borderRadius: 8,
+                      padding: "8px 12px",
+                      fontSize: "0.95em",
+                    }}
+                  >
+                    <span className="fw-bold text-info">{estudianteSeleccionado.nombres} {estudianteSeleccionado.apellidos}</span>
+                    <div><strong>Cédula:</strong> {estudianteSeleccionado.cedula}</div>
+                    <div><strong>Fecha Nac:</strong> {estudianteSeleccionado.fecha_nacimiento}</div>
+                    <div><strong>Sexo:</strong> {estudianteSeleccionado.sexo}</div>
+                  </div>
                 )}
-                <CFormLabel className="mt-2"> Año - Sección </CFormLabel>
+              </CCol>
+            </CRow>
+            <CRow className="mb-2" xs={{ gutter: 2 }}>
+              <CCol xs={12} md={6}>
+                <CFormLabel className="fw-bold">Año - Sección</CFormLabel>
                 <CFormSelect
+                  size="sm"
                   value={idSeccionSeleccionada}
                   onChange={(e) => setIdSeccionSeleccionada(e.target.value)}
                   required
+                  className="mb-1"
                 >
                   <option value="">Seleccione Año - Sección</option>
                   {secciones.map((s) => (
@@ -395,11 +473,15 @@ const InscribirMateria = () => {
                     </option>
                   ))}
                 </CFormSelect>
-                <CFormLabel className="mt-2">Año Escolar</CFormLabel>
+              </CCol>
+              <CCol xs={12} md={6}>
+                <CFormLabel className="fw-bold">Año Escolar</CFormLabel>
                 <CFormSelect
+                  size="sm"
                   value={fkAñoEscolarSeleccionado}
                   onChange={(e) => setFkAñoEscolarSeleccionado(e.target.value)}
                   required
+                  className="mb-1"
                 >
                   <option value="">Seleccione Año Escolar</option>
                   {aniosEscolares.map((dataAnios) => (
@@ -408,49 +490,66 @@ const InscribirMateria = () => {
                     </option>
                   ))}
                 </CFormSelect>
-                <div className="d-flex justify-content-center mt-4">
-                  <CButton type="submit" style={{ minWidth: 160, borderRadius: 20, backgroundColor: '#9cd2d3', color: '#114c5f'}}> 
-                    Inscribir
-                  </CButton>
-                </div>
-                <div className="d-flex justify-content-center mt-3">
-                  <CButton color="info" style={{ borderRadius: 50, width: 48, height: 48, fontSize: 24 }} onClick={() => setModalMaterias(true)}>
-                    <span role="img" aria-label="Inscribir Materias">📚</span>
-                  </CButton>
-                </div>
-              </CForm>
-            </CCardBody>
-          </CCard>
-        </CCol>
-      </CRow>
+              </CCol>
+            </CRow>
+            <div className="d-flex justify-content-end pt-1 pb-1">
+              <CButton
+                type="submit"
+                color="info"
+                size="sm"
+                shape="rounded-pill"
+                className="fw-bold px-4"
+              >
+                Inscribir
+              </CButton>
+            </div>
+          </CForm>
+        </CModalBody>
+      </CModal>
 
-      {/* Modal de inscripción de materias */}
-      <CModal visible={modalMaterias} onClose={() => setModalMaterias(false)} size="xl">
-        <CModalHeader>
-          <CModalTitle>Inscripción de Materias</CModalTitle>
+      {/* MODAL MATERIAS */}
+      <CModal
+        visible={modalMaterias}
+        onClose={() => setModalMaterias(false)}
+        size="md"
+        alignment="center"
+        backdrop="static"
+      >
+        <CModalHeader className="bg-primary" style={{ borderRadius: 8 }}>
+          <CModalTitle className="text-white fs-6">
+            Inscripción de Materias
+          </CModalTitle>
         </CModalHeader>
-        <CModalBody>
+        <CModalBody style={{ background: "#f9fcfd", borderRadius: 8 }}>
           {mensajeMateria && (
-            <CAlert color={mensajeMateria.includes("Error") ? "danger" : "success"} dismissible onClose={() => setMensajeMateria("")}>
+            <CAlert
+              color={mensajeMateria.includes("Error") ? "danger" : "success"}
+              dismissible
+              onClose={() => setMensajeMateria("")}
+            >
               {mensajeMateria}
             </CAlert>
           )}
           <CForm onSubmit={handleInscribirMaterias}>
-            <CRow className="align-items-center mb-4">
-              <CCol xs={12} md={6} style={{ marginTop: "0px" }}>
-                <CFormLabel className="w-100">Buscar estudiante</CFormLabel>
+            <CRow className="mb-2" xs={{ gutter: 2 }}>
+              <CCol xs={12} md={6}>
+                <CFormLabel className="fw-bold">Buscar estudiante</CFormLabel>
                 <CFormInput
                   type="text"
+                  size="sm"
                   placeholder="Buscar..."
                   value={busqueda}
                   onChange={e => setBusqueda(e.target.value)}
+                  className="mb-1"
                 />
               </CCol>
-              <CCol xs={12} md={6} style={{ marginTop: "25px" }}>
-                <CFormLabel className="w-100">Seleccionar Estudiante</CFormLabel>
+              <CCol xs={12} md={6}>
+                <CFormLabel className="fw-bold">Seleccionar Estudiante</CFormLabel>
                 <CFormSelect
+                  size="sm"
                   onChange={(e) => setIdInscripcionSeleccionada(e.target.value)}
                   value={idInscripcionSeleccionada}
+                  className="mb-1"
                 >
                   <option value="">Seleccione un estudiante</option>
                   {inscripcionesFiltradas.map((i) => (
@@ -461,69 +560,35 @@ const InscribirMateria = () => {
                 </CFormSelect>
                 {estudiante && (
                   <div className="mt-2 text-center">
-                    <strong>CI:</strong> {estudiante.cedula_estudiante}
-                  </div>
-                )}
-              </CCol>
-              <CCol xs={12} className="mt-3">
-                {(materiasSeleccionadas.length > 0 || reprobadasSeleccionadas.length > 0) && (
-                  <div style={{ backgroundColor: "#f8f9fa", borderRadius: "5px", padding: "10px" }}>
-                    <h6 className="text-center mb-2">Materias seleccionadas:</h6>
-                    <ul style={{ textAlign: "center", listStyle: "none", padding: 0, margin: 0 }}>
-                      {[...materiasSeleccionadas, ...reprobadasSeleccionadas].map((m) => (
-                        <li key={m.id}>{m.nombre}</li>
-                      ))}
-                    </ul>
+                    <CBadge color="primary" shape="rounded-pill" className="p-2 fs-6">
+                      CI: {estudiante.cedula_estudiante}
+                    </CBadge>
                   </div>
                 )}
               </CCol>
             </CRow>
-            <CRow>
+            <CRow className="mb-2">
               <CCol xs={12} md={6}>
-                <CFormLabel className="d-block text-center">Materias Disponibles</CFormLabel>
+                <CFormLabel className="fw-bold">Materias Disponibles</CFormLabel>
                 {materiasDisponibles.length > 0 && (
-                  <div style={{ marginBottom: 8 }}>
-                    <input
-                      type="checkbox"
-                      id="todasDisponibles"
-                      checked={materiasSeleccionadas.length === materiasDisponibles.length && materiasDisponibles.length > 0}
-                      onChange={e => {
-                        if (e.target.checked) {
-                          setMateriasSeleccionadas(materiasDisponibles.map(m => ({ id: m.id_año_materia, nombre: m.nombre_materia })));
-                        } else {
-                          setMateriasSeleccionadas([]);
-                        }
-                      }}
-                      style={{ accentColor: "#114c5f", width: 18, height: 18 }}
-                    />
-                    <label htmlFor="todasDisponibles" style={{ marginLeft: 8, fontWeight: "bold", color: "#114c5f" }}>
-                      Seleccionar todas las materias
-                    </label>
-                  </div>
+                  <CButton
+                    color="info"
+                    variant="outline"
+                    size="sm"
+                    className="mb-2"
+                    onClick={() => setMateriasSeleccionadas(materiasDisponibles.map(m => ({ id: m.id_año_materia, nombre: m.nombre_materia })))}
+                    disabled={materiasSeleccionadas.length === materiasDisponibles.length}
+                  >
+                    Seleccionar todas
+                  </CButton>
                 )}
-                <div
-                  style={{
-                    border: "1px solid #dee2e6",
-                    borderRadius: 5,
-                    padding: 10,
-                    marginBottom: 10,
-                    background: "#f8fafc",
-                    maxHeight: 220,
-                    overflowY: "auto",
-                    display: "grid",
-                    gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))",
-                    gap: "8px"
-                  }}
-                >
-                  {materiasDisponibles.length === 0 && <div className="text-muted text-center">No hay materias disponibles</div>}
+                <CListGroup>
+                  {materiasDisponibles.length === 0 && <CListGroupItem color="light">No hay materias disponibles</CListGroupItem>}
                   {materiasDisponibles.map((m) => (
-                    <div key={m.id_año_materia} style={{ display: "flex", alignItems: "center" }}>
-                      <input
-                        className="form-check-input"
+                    <CListGroupItem key={m.id_año_materia} color="light" className="mb-1">
+                      <CFormInput
                         type="checkbox"
-                        id={`materia-disponible-${m.id_año_materia}`}
                         checked={materiasSeleccionadas.some(sel => sel.id === m.id_año_materia)}
-                        style={{ borderColor: '#114c5f', marginRight: 6 }}
                         onChange={e => {
                           if (e.target.checked) {
                             setMateriasSeleccionadas([...materiasSeleccionadas, { id: m.id_año_materia, nombre: m.nombre_materia }]);
@@ -531,59 +596,35 @@ const InscribirMateria = () => {
                             setMateriasSeleccionadas(materiasSeleccionadas.filter(sel => sel.id !== m.id_año_materia));
                           }
                         }}
+                        style={{ width: "1.1em", height: "1.1em", marginRight: 10 }}
                       />
-                      <label className="form-check-label" htmlFor={`materia-disponible-${m.id_año_materia}`}>
-                        {m.nombre_materia} - Docente: {m.nombre_docente} {m.apellido_docente} ({m.cedula_docente})
-                      </label>
-                    </div>
+                      <span className="fw-bold">{m.nombre_materia}</span>
+                      <span className="ms-2 text-muted">Docente: {m.nombre_docente} {m.apellido_docente} ({m.cedula_docente})</span>
+                    </CListGroupItem>
                   ))}
-                </div>
+                </CListGroup>
               </CCol>
               <CCol xs={12} md={6}>
-                <CFormLabel className="d-block text-center">Materias Reprobadas</CFormLabel>
+                <CFormLabel className="fw-bold">Materias Reprobadas</CFormLabel>
                 {materiasReprobadas.length > 0 && (
-                  <div style={{ marginBottom: 8 }}>
-                    <input
-                      type="checkbox"
-                      id="todasReprobadas"
-                      checked={reprobadasSeleccionadas.length === materiasReprobadas.length && materiasReprobadas.length > 0}
-                      onChange={e => {
-                        if (e.target.checked) {
-                          setReprobadasSeleccionadas(materiasReprobadas.map(m => ({ id: m.id_año_materia, nombre: m.nombre_materia })));
-                        } else {
-                          setReprobadasSeleccionadas([]);
-                        }
-                      }}
-                      style={{ accentColor: "#114c5f", width: 18, height: 18 }}
-                    />
-                    <label htmlFor="todasReprobadas" style={{ marginLeft: 8, fontWeight: "bold", color: "#114c5f" }}>
-                      Seleccionar todas las materias
-                    </label>
-                  </div>
+                  <CButton
+                    color="danger"
+                    variant="outline"
+                    size="sm"
+                    className="mb-2"
+                    onClick={() => setReprobadasSeleccionadas(materiasReprobadas.map(m => ({ id: m.id_año_materia, nombre: m.nombre_materia })))}
+                    disabled={reprobadasSeleccionadas.length === materiasReprobadas.length}
+                  >
+                    Seleccionar todas
+                  </CButton>
                 )}
-                <div
-                  style={{
-                    border: "1px solid #dee2e6",
-                    borderRadius: 5,
-                    padding: 10,
-                    marginBottom: 10,
-                    background: "#f8fafc",
-                    maxHeight: 220,
-                    overflowY: "auto",
-                    display: "grid",
-                    gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))",
-                    gap: "8px"
-                  }}
-                >
-                  {materiasReprobadas.length === 0 && <div className="text-muted text-center">No tiene materias reprobadas</div>}
+                <CListGroup>
+                  {materiasReprobadas.length === 0 && <CListGroupItem color="light">No tiene materias reprobadas</CListGroupItem>}
                   {materiasReprobadas.map((m) => (
-                    <div key={m.id_año_materia} style={{ display: "flex", alignItems: "center" }}>
-                      <input
-                        className="form-check-input"
+                    <CListGroupItem key={m.id_año_materia} color="warning" className="mb-1">
+                      <CFormInput
                         type="checkbox"
-                        id={`materia-reprobada-${m.id_año_materia}`}
                         checked={reprobadasSeleccionadas.some(sel => sel.id === m.id_año_materia)}
-                        style={{ borderColor: '#114c5f', marginRight: 6 }}
                         onChange={e => {
                           if (e.target.checked) {
                             setReprobadasSeleccionadas([...reprobadasSeleccionadas, { id: m.id_año_materia, nombre: m.nombre_materia }]);
@@ -591,17 +632,29 @@ const InscribirMateria = () => {
                             setReprobadasSeleccionadas(reprobadasSeleccionadas.filter(sel => sel.id !== m.id_año_materia));
                           }
                         }}
+                        style={{ width: "1.1em", height: "1.1em", marginRight: 10 }}
                       />
-                      <label className="form-check-label" htmlFor={`materia-reprobada-${m.id_año_materia}`}>
-                        {m.nombre_materia} ({m.codigo_materia}) - Año escolar: {m.año_escolar} - Nota: {m.nota_final}
-                      </label>
-                    </div>
+                      <span className="fw-bold">{m.nombre_materia} ({m.codigo_materia})</span>
+                      <span className="ms-2 text-muted">Año escolar: {m.año_escolar} - Nota: {m.nota_final}</span>
+                    </CListGroupItem>
                   ))}
-                </div>
+                </CListGroup>
               </CCol>
             </CRow>
-            <div className="text-center">
-              <CButton type="submit" style={{ backgroundColor: '#9cd2d3', color: '#114c5f', marginTop: '10px', minWidth: 180, borderRadius:20 }}>
+            {(materiasSeleccionadas.length > 0 || reprobadasSeleccionadas.length > 0) && (
+              <CAlert color="info" className="text-center mb-2 py-1 px-2">
+                <strong>Materias seleccionadas:</strong>{" "}
+                {[...materiasSeleccionadas, ...reprobadasSeleccionadas].map(m => m.nombre).join(", ")}
+              </CAlert>
+            )}
+            <div className="d-flex justify-content-end pt-1 pb-1">
+              <CButton
+                type="submit"
+                color="primary"
+                size="sm"
+                shape="rounded-pill"
+                className="fw-bold px-4"
+              >
                 Inscribir Materias
               </CButton>
             </div>
@@ -609,98 +662,106 @@ const InscribirMateria = () => {
         </CModalBody>
       </CModal>
 
-      {/* Módulo de inscripciones registradas para admin y gestor */}
-      {(usuario.rol === "admin" || usuario.rol === "gestor") && (
-        <CRow className="justify-content-center mt-4">
-          <CCol xs={12} md={12} lg={12}>
-            <CCard className="shadow-sm">
-              <CCardHeader className="bg-secondary text-white">
-                <CCardTitle>Inscripciones Registradas</CCardTitle>
-              </CCardHeader>
-              <CCardBody>
-                {mensajeAdmin && (
-                  <CAlert color={mensajeAdmin.includes("Error") ? "danger" : "success"} dismissible onClose={() => setMensajeAdmin("")}>
-                    {mensajeAdmin}
-                  </CAlert>
-                )}
-                <CFormInput
-                  type="text"
-                  placeholder="Filtrar por cédula o nombre..."
-                  value={filtroInscripcion}
-                  onChange={e => setFiltroInscripcion(e.target.value)}
-                  className="mb-3"
-                />
-                <CTable hover responsive>
-                  <CTableHead>
-                    <CTableRow>
-                      <CTableHeaderCell>Estudiante</CTableHeaderCell>
-                      <CTableHeaderCell>Cédula</CTableHeaderCell>
-                      <CTableHeaderCell>Año</CTableHeaderCell>
-                      <CTableHeaderCell>Sección</CTableHeaderCell>
-                      <CTableHeaderCell>Año Escolar</CTableHeaderCell>
-                      <CTableHeaderCell>Fecha Inscripción</CTableHeaderCell>
-                      <CTableHeaderCell>Acciones</CTableHeaderCell>
-                    </CTableRow>
-                  </CTableHead>
-                  <CTableBody>
-                    {inscripcionesPaginadas.map((i) => (
-                      <CTableRow key={i.id_inscripcion}>
-                        <CTableDataCell>{i.nombres} {i.apellidos}</CTableDataCell>
-                        <CTableDataCell>{i.cedula}</CTableDataCell>
-                        <CTableDataCell>{i.nombre_año}</CTableDataCell>
-                        <CTableDataCell>{i.nombre_seccion}</CTableDataCell>
-                        <CTableDataCell>{i.año_escolar}</CTableDataCell>
-                        <CTableDataCell>{i.fecha_inscripcion?.substring(0, 10)}</CTableDataCell>
-                        <CTableDataCell>
-                          <CButton size="sm" style={{ backgroundColor: 'white', color:'blue', borderColor:'blue'}} className="me-2" onClick={() => handleEditarInscripcion(i)}>Editar</CButton>
-                          <CButton size="sm" style={{ backgroundColor: 'white', color:'red', borderColor:'red'}} onClick={() => solicitarEliminarInscripcion(i.id_inscripcion)}>
-                            Eliminar
-                          </CButton>
-                        </CTableDataCell>
-                      </CTableRow>
-                    ))}
-                  </CTableBody>
-                </CTable>
-                {/* Paginación */}
-                <div className="d-flex justify-content-center mt-3">
-                  <CButton
-                    color="secondary"
-                    size="sm"
-                    disabled={pagina === 1}
-                    onClick={() => setPagina(pagina - 1)}
-                    className="me-2"
-                  >
-                    Anterior
-                  </CButton>
-                  <span style={{ lineHeight: "2.2rem" }}>
-                    Página {pagina} de {totalPaginas}
-                  </span>
-                  <CButton
-                    color="secondary"
-                    size="sm"
-                    disabled={pagina === totalPaginas || totalPaginas === 0}
-                    onClick={() => setPagina(pagina + 1)}
-                    className="ms-2"
-                  >
-                    Siguiente
-                  </CButton>
-                </div>
-              </CCardBody>
-            </CCard>
-          </CCol>
-        </CRow>
-      )}
+      {/* LISTADO INSCRIPCIONES */}
+      <CRow className="mt-4">
+        <CCol xs={12}>
+          <CFormInput
+            type="text"
+            size="sm"
+            placeholder="Filtrar por cédula o nombre..."
+            value={filtroInscripcion}
+            onChange={e => setFiltroInscripcion(e.target.value)}
+            className="mb-2"
+          />
+          <CTable responsive striped hover bordered align="middle" className="mb-2">
+            <CTableHead color="info">
+              <CTableRow>
+                <CTableHeaderCell>Estudiante</CTableHeaderCell>
+                <CTableHeaderCell>Cédula</CTableHeaderCell>
+                <CTableHeaderCell>Año</CTableHeaderCell>
+                <CTableHeaderCell>Sección</CTableHeaderCell>
+                <CTableHeaderCell>Año Escolar</CTableHeaderCell>
+                <CTableHeaderCell>Fecha Inscripción</CTableHeaderCell>
+                <CTableHeaderCell className="text-center">Acciones</CTableHeaderCell>
+              </CTableRow>
+            </CTableHead>
+            <CTableBody>
+              {inscripcionesPaginadas.map((i) => (
+                <CTableRow key={i.id_inscripcion}>
+                  <CTableDataCell>{i.nombres} {i.apellidos}</CTableDataCell>
+                  <CTableDataCell>{i.cedula}</CTableDataCell>
+                  <CTableDataCell>{i.nombre_año}</CTableDataCell>
+                  <CTableDataCell>{i.nombre_seccion}</CTableDataCell>
+                  <CTableDataCell>{i.año_escolar}</CTableDataCell>
+                  <CTableDataCell>{i.fecha_inscripcion?.substring(0, 10)}</CTableDataCell>
+                  <CTableDataCell className="text-center">
+                    <CButton
+                      size="sm"
+                      color="warning"
+                      shape="rounded-pill"
+                      className="me-2"
+                      onClick={() => handleEditarInscripcion(i)}
+                    >
+                      Editar
+                    </CButton>
+                    <CButton
+                      size="sm"
+                      color="danger"
+                      shape="rounded-pill"
+                      onClick={() => solicitarEliminarInscripcion(i.id_inscripcion)}
+                    >
+                      Eliminar
+                    </CButton>
+                  </CTableDataCell>
+                </CTableRow>
+              ))}
+            </CTableBody>
+          </CTable>
+          <div className="d-flex justify-content-center align-items-center gap-2">
+            <CButton
+              color="secondary"
+              size="sm"
+              shape="rounded-pill"
+              disabled={pagina === 1}
+              onClick={() => setPagina(pagina - 1)}
+            >
+              Anterior
+            </CButton>
+            <span>
+              Página <strong>{pagina}</strong> de <strong>{totalPaginas}</strong>
+            </span>
+            <CButton
+              color="secondary"
+              size="sm"
+              shape="rounded-pill"
+              disabled={pagina === totalPaginas || totalPaginas === 0}
+              onClick={() => setPagina(pagina + 1)}
+            >
+              Siguiente
+            </CButton>
+          </div>
+        </CCol>
+      </CRow>
 
-      {/* Modal de edición */}
-      <CModal visible={modalEdit} onClose={() => setModalEdit(false)}>
-        <CModalHeader>
-          <CModalTitle>Editar Inscripción</CModalTitle>
+      {/* MODAL EDICIÓN */}
+      <CModal
+        visible={modalEdit}
+        onClose={() => setModalEdit(false)}
+        alignment="center"
+        backdrop="static"
+      >
+        <CModalHeader className="bg-warning" style={{ borderRadius: 8 }}>
+          <CModalTitle className="text-white fs-6">
+            Editar Inscripción
+          </CModalTitle>
         </CModalHeader>
-        <CModalBody>
-          <CFormLabel>Sección</CFormLabel>
+        <CModalBody style={{ background: "#fff9e5" }}>
+          <CFormLabel className="fw-bold">Sección</CFormLabel>
           <CFormSelect
+            size="sm"
             value={editData.id_seccion}
             onChange={e => setEditData({ ...editData, id_seccion: e.target.value })}
+            className="mb-2"
           >
             <option value="">Seleccione Sección</option>
             {secciones.map((s) => (
@@ -709,10 +770,12 @@ const InscribirMateria = () => {
               </option>
             ))}
           </CFormSelect>
-          <CFormLabel className="mt-2">Año Escolar</CFormLabel>
+          <CFormLabel className="fw-bold">Año Escolar</CFormLabel>
           <CFormSelect
+            size="sm"
             value={editData.fk_año_escolar}
             onChange={e => setEditData({ ...editData, fk_año_escolar: e.target.value })}
+            className="mb-2"
           >
             <option value="">Seleccione Año Escolar</option>
             {aniosEscolares.map((a) => (
@@ -723,32 +786,66 @@ const InscribirMateria = () => {
           </CFormSelect>
         </CModalBody>
         <CModalFooter>
-          <CButton style={{backgroundColor:'white', color:'blue',borderColor:'blue'}} onClick={handleGuardarEdicion}>Guardar</CButton>
-          <CButton style={{backgroundColor:'white', color:'#114c5f',borderColor:'#114c5f'}} variant="outline" onClick={() => setModalEdit(false)}>Cancelar</CButton>
+          <CButton
+            color="warning"
+            shape="rounded-pill"
+            className="fw-bold"
+            onClick={handleGuardarEdicion}
+          >
+            Guardar
+          </CButton>
+          <CButton
+            color="secondary"
+            shape="rounded-pill"
+            onClick={() => setModalEdit(false)}
+          >
+            Cancelar
+          </CButton>
         </CModalFooter>
       </CModal>
 
-      {/* Modal de confirmación para eliminar inscripción */}
-      <CModal visible={modalConfirm} onClose={() => setModalConfirm(false)}>
-        <CModalHeader>
-          <CModalTitle>Confirmar Eliminación</CModalTitle>
+      {/* MODAL CONFIRMACIÓN ELIMINACIÓN */}
+      <CModal
+        visible={modalConfirm}
+        onClose={() => setModalConfirm(false)}
+        alignment="center"
+        backdrop="static"
+      >
+        <CModalHeader className="bg-danger" style={{ borderRadius: 8 }}>
+          <CModalTitle className="text-white fs-6">
+            Confirmar Eliminación
+          </CModalTitle>
         </CModalHeader>
-        <CModalBody>
-          ¿Seguro que desea eliminar esta inscripción? Si eliminas la inscripción eliminarás todos aquellos registros donde esté presente.
+        <CModalBody style={{ background: "#fff5f5" }}>
+          ¿Seguro que desea eliminar esta inscripción?
+          <br />
+          <span className="fw-bold">
+            Si eliminas la inscripción eliminarás todos aquellos registros donde esté presente.
+          </span>
         </CModalBody>
         <CModalFooter>
-          <CButton style={{backgroundColor:'white', color:'red', borderColor:'red'}} onClick={() => {
-            setModalConfirm(false);
-            handleEliminarInscripcion(idAEliminar);
-          }}>
+          <CButton
+            color="danger"
+            shape="rounded-pill"
+            className="fw-bold"
+            onClick={() => {
+              setModalConfirm(false);
+              handleEliminarInscripcion(idAEliminar);
+            }}
+          >
             Eliminar
           </CButton>
-          <CButton style={{backgroundColor:'white', color:'#114c5f',borderColor:'#114c5f'}} variant="outline" onClick={() => setModalConfirm(false)}>
+          <CButton
+            color="secondary"
+            shape="rounded-pill"
+            onClick={() => setModalConfirm(false)}
+          >
             Cancelar
           </CButton>
         </CModalFooter>
       </CModal>
     </CContainer>
+  
   );
 };
 

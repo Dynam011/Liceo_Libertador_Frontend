@@ -1,9 +1,5 @@
 import { useState, useEffect } from "react";
 import {
-  CCard,
-  CCardBody,
-  CCardHeader,
-  CCardTitle,
   CForm,
   CFormLabel,
   CFormInput,
@@ -26,18 +22,22 @@ import {
   CPagination,
   CPaginationItem,
 } from "@coreui/react";
-import {apiUrl} from "../../../api"
+import { apiUrl } from "../../../api";
+
 const MateriaForm = () => {
   const [codigo_materia, setCodigoMateria] = useState("");
   const [nombre, setNombre] = useState("");
   const [materias, setMaterias] = useState([]);
   const [filtro, setFiltro] = useState("");
   const [mensaje, setMensaje] = useState("");
-
   const [modalVisible, setModalVisible] = useState(false);
   const [materiaSeleccionada, setMateriaSeleccionada] = useState(null);
   const [nuevoCodigo, setNuevoCodigo] = useState("");
   const [nuevoNombre, setNuevoNombre] = useState("");
+  const [modalEliminar, setModalEliminar] = useState(false);
+
+  // Para eliminar
+  const [codigoEliminar, setCodigoEliminar] = useState("");
 
   // Paginación
   const [paginaActual, setPaginaActual] = useState(1);
@@ -52,7 +52,7 @@ const MateriaForm = () => {
 
   const obtenerMaterias = async () => {
     try {
-      const res = await fetch(apiUrl+"/materiasregistradas");
+      const res = await fetch(apiUrl + "/materiasregistradas");
       const data = await res.json();
       setMaterias(data);
     } catch (error) {
@@ -68,7 +68,7 @@ const MateriaForm = () => {
     }
 
     try {
-      const res = await fetch(apiUrl+"/materias", {
+      const res = await fetch(apiUrl + "/materias", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ codigo_materia, nombre }),
@@ -104,7 +104,7 @@ const MateriaForm = () => {
 
     try {
       const res = await fetch(
-        apiUrl+`/materias/${materiaSeleccionada.codigo_materia}`,
+        apiUrl + `/materias/${materiaSeleccionada.codigo_materia}`,
         {
           method: "PUT",
           headers: { "Content-Type": "application/json" },
@@ -130,11 +130,15 @@ const MateriaForm = () => {
     }
   };
 
-  const handleEliminar = async (codigo_materia) => {
-    if (!window.confirm("¿Seguro que deseas eliminar esta materia?")) return;
+  // Eliminar con modal
+  const handleEliminarModal = (codigo_materia) => {
+    setCodigoEliminar(codigo_materia);
+    setModalEliminar(true);
+  };
 
+  const handleEliminar = async () => {
     try {
-      await fetch(apiUrl+`/materias/${codigo_materia}`, {
+      await fetch(apiUrl + `/materias/${codigoEliminar}`, {
         method: "DELETE",
       });
       obtenerMaterias();
@@ -143,6 +147,8 @@ const MateriaForm = () => {
       console.error("Error eliminando materia:", error);
       setMensaje("Error al eliminar la materia.");
     }
+    setModalEliminar(false);
+    setCodigoEliminar("");
   };
 
   // Filtrado y paginación
@@ -167,187 +173,183 @@ const MateriaForm = () => {
 
   return (
     <CContainer className="py-4">
-      <CRow className="justify-content-center">
+      <CRow className="justify-content-center mb-2">
         <CCol xs={12} md={10} lg={8}>
-          <CCard className="shadow-sm mb-4">
-            <CCardHeader className="" style={{ backgroundColor: "#114c5f", color: "white" }}>
-              <CCardTitle>Registrar Materia</CCardTitle>
-            </CCardHeader>
-            <CCardBody>
-              {mensaje && (
-                <CAlert
-                  color={
-                    mensaje.toLowerCase().includes("error") ? "danger" : "success"
-                  }
-                  dismissible
-                  onClose={() => setMensaje("")}
-                >
-                  {mensaje}
-                </CAlert>
-              )}
-              {usuario?.rol === "admin" ? (
-                <CForm onSubmit={handleSubmit}>
-                  <CRow className="g-3 align-items-end">
-                    <CCol md={5}>
-                      <CFormLabel>Código de Materia</CFormLabel>
-                      <CFormInput
-                        type="text"
-                        value={codigo_materia}
-                        placeholder="Ej: 01MAT - 01 PERTENECE AL AÑO "
-                        onChange={(e) => setCodigoMateria(e.target.value)}
-                        maxLength={15}
-                        required
-                      />
-                    </CCol>
-                    <CCol md={5}>
-                      <CFormLabel>Nombre</CFormLabel>
-                      <CFormInput
-                        type="text"
-                        value={nombre}
-                        placeholder="Ejm Matemáticas"
-                        onChange={(e) => setNombre(e.target.value)}
-                        maxLength={40}
-                        required
-                      />
-                    </CCol>
-                    <CCol md={2}>
-                      <CButton style={{ backgroundColor: '#9cd2d3', color: '#114c5f'}} type="submit" className="w-100">
-                        Registrar
-                      </CButton>
-                    </CCol>
-                  </CRow>
-                </CForm>
-              ) : (
-                <CAlert color="warning" className="mb-0">
-                  Solo los administradores pueden registrar materias.
-                </CAlert>
-              )}
-            </CCardBody>
-          </CCard>
-
-          <CCard className="shadow-sm">
-            <CCardHeader className="bg-secondary text-white">
-              <CCardTitle>Materias Registradas</CCardTitle>
-            </CCardHeader>
-            <CCardBody>
-              <CRow className="mb-3">
-                <CCol md={6}>
-                  <CFormInput
-                    type="text"
-                    placeholder="Filtrar por nombre..."
-                    value={filtro}
-                    onChange={(e) => setFiltro(e.target.value)}
-                  />
-                </CCol>
-              </CRow>
-              <CTable hover responsive>
-                <CTableHead>
-                  <CTableRow>
-                    <CTableHeaderCell>Código</CTableHeaderCell>
-                    <CTableHeaderCell>Nombre</CTableHeaderCell>
-                    {usuario?.rol === "admin" && (
-                      <CTableHeaderCell>Acciones</CTableHeaderCell>
-                    )}
-                  </CTableRow>
-                </CTableHead>
-                <CTableBody>
-                  {materiasPagina.map((materia) => (
-                    <CTableRow key={materia.codigo_materia}>
-                      <CTableDataCell>{materia.codigo_materia}</CTableDataCell>
-                      <CTableDataCell>{materia.nombre}</CTableDataCell>
-                      {usuario?.rol === "admin" && (
-                        <CTableDataCell>
-                          <CButton
-                            style={{ backgroundColor: 'white', color:'#114c5f', borderColor: '#114c5f'}}
-                            size="sm"
-                            className="me-2"
-                            onClick={() => handleEditar(materia)}
-                          >
-                            Editar
-                          </CButton>
-                          <CButton
-                            style={{ backgroundColor: 'white', color:'red', borderColor: 'red'}}
-                            size="sm"
-                            onClick={() =>
-                              handleEliminar(materia.codigo_materia)
-                            }
-                          >
-                            Eliminar
-                          </CButton>
-                        </CTableDataCell>
-                      )}
-                    </CTableRow>
-                  ))}
-                </CTableBody>
-              </CTable>
-              {/* Paginación */}
-              {totalPaginas > 1 && (
-                <CPagination align="center" className="mt-3">
-                  <CPaginationItem
-                    disabled={paginaActual === 1}
-                    onClick={() => cambiarPagina(paginaActual - 1)}
-                  >
-                    Anterior
-                  </CPaginationItem>
-                  {[...Array(totalPaginas)].map((_, idx) => (
-                    <CPaginationItem
-                      key={idx + 1}
-                      active={paginaActual === idx + 1}
-                      onClick={() => cambiarPagina(idx + 1)}
-                    >
-                      {idx + 1}
-                    </CPaginationItem>
-                  ))}
-                  <CPaginationItem
-                    disabled={paginaActual === totalPaginas}
-                    onClick={() => cambiarPagina(paginaActual + 1)}
-                  >
-                    Siguiente
-                  </CPaginationItem>
-                </CPagination>
-              )}
-            </CCardBody>
-          </CCard>
+          {mensaje && (
+            <CAlert
+              color={
+                mensaje.toLowerCase().includes("error") ? "danger" : "success"
+              }
+              dismissible
+              onClose={() => setMensaje("")}
+            >
+              {mensaje}
+            </CAlert>
+          )}
+          {usuario?.rol === "admin" && (
+            <CButton
+              color="info"
+              size="sm"
+              style={{
+                borderRadius: 10,
+                fontWeight: "bold",
+                fontSize: 15,
+                minWidth: 140,
+                background: "linear-gradient(95deg, #17b6ce 80%, #0bb5d4 100%)"
+              }}
+              className="mb-3"
+              onClick={() => setModalVisible(true)}
+            >
+              Registrar Materia
+            </CButton>
+          )}
         </CCol>
       </CRow>
 
-      {/* MODAL DE EDICIÓN */}
+      {/* MODAL DE REGISTRO/EDICIÓN */}
       <CModal
         visible={modalVisible}
         onClose={() => setModalVisible(false)}
         alignment="center"
       >
         <CModalHeader>
-          <CModalTitle>Editar Materia</CModalTitle>
+          <CModalTitle>
+            {materiaSeleccionada ? "Editar Materia" : "Registrar Materia"}
+          </CModalTitle>
         </CModalHeader>
         <CModalBody>
-          <CForm>
+          <CForm onSubmit={materiaSeleccionada ? (e) => { e.preventDefault(); handleGuardarEdicion(); } : handleSubmit}>
             <CFormLabel>Código de Materia</CFormLabel>
             <CFormInput
               type="text"
-              value={nuevoCodigo}
-              onChange={(e) => setNuevoCodigo(e.target.value)}
+              value={materiaSeleccionada ? nuevoCodigo : codigo_materia}
+              onChange={materiaSeleccionada ? (e) => setNuevoCodigo(e.target.value) : (e) => setCodigoMateria(e.target.value)}
               maxLength={15}
               className="mb-3"
+              required
+              placeholder="Ej: 01MAT - 01 PERTENECE AL AÑO"
             />
             <CFormLabel>Nombre</CFormLabel>
             <CFormInput
               type="text"
-              value={nuevoNombre}
-              onChange={(e) => setNuevoNombre(e.target.value)}
+              value={materiaSeleccionada ? nuevoNombre : nombre}
+              onChange={materiaSeleccionada ? (e) => setNuevoNombre(e.target.value) : (e) => setNombre(e.target.value)}
               maxLength={40}
+              required
+              placeholder="Ejm Matemáticas"
             />
+            <div className="d-flex justify-content-end mt-3">
+              <CButton color="primary" type="submit">
+                {materiaSeleccionada ? "Guardar Cambios" : "Registrar"}
+              </CButton>
+              <CButton color="secondary" variant="outline" className="ms-2" onClick={() => setModalVisible(false)}>
+                Cancelar
+              </CButton>
+            </div>
           </CForm>
         </CModalBody>
+      </CModal>
+
+      {/* MODAL DE CONFIRMACIÓN DE ELIMINACIÓN */}
+      <CModal
+        visible={modalEliminar}
+        onClose={() => setModalEliminar(false)}
+        alignment="center"
+      >
+        <CModalHeader>
+          <CModalTitle>Eliminar Materia</CModalTitle>
+        </CModalHeader>
+        <CModalBody>
+          ¿Seguro que deseas eliminar esta materia?
+        </CModalBody>
         <CModalFooter>
-          <CButton color="primary" onClick={handleGuardarEdicion}>
-            Guardar Cambios
+          <CButton color="danger" onClick={handleEliminar}>
+            Eliminar
           </CButton>
-          <CButton color="secondary" variant="outline" onClick={() => setModalVisible(false)}>
+          <CButton color="secondary" variant="outline" onClick={() => setModalEliminar(false)}>
             Cancelar
           </CButton>
         </CModalFooter>
       </CModal>
+
+      <CRow className="justify-content-center">
+        <CCol xs={12} md={10} lg={8}>
+          <CRow className="mb-3">
+            <CCol md={6}>
+              <CFormInput
+                type="text"
+                placeholder="Filtrar por nombre..."
+                value={filtro}
+                onChange={(e) => setFiltro(e.target.value)}
+              />
+            </CCol>
+          </CRow>
+          <CTable hover responsive>
+            <CTableHead>
+              <CTableRow>
+                <CTableHeaderCell>Código</CTableHeaderCell>
+                <CTableHeaderCell>Nombre</CTableHeaderCell>
+                {usuario?.rol === "admin" && (
+                  <CTableHeaderCell>Acciones</CTableHeaderCell>
+                )}
+              </CTableRow>
+            </CTableHead>
+            <CTableBody>
+              {materiasPagina.map((materia) => (
+                <CTableRow key={materia.codigo_materia}>
+                  <CTableDataCell>{materia.codigo_materia}</CTableDataCell>
+                  <CTableDataCell>{materia.nombre}</CTableDataCell>
+                  {usuario?.rol === "admin" && (
+                    <CTableDataCell>
+                      <CButton
+                        style={{ backgroundColor: 'white', color: '#114c5f', borderColor: '#114c5f' }}
+                        size="sm"
+                        className="me-2"
+                        onClick={() => handleEditar(materia)}
+                      >
+                        Editar
+                      </CButton>
+                      <CButton
+                        style={{ backgroundColor: 'white', color: 'red', borderColor: 'red' }}
+                        size="sm"
+                        onClick={() => handleEliminarModal(materia.codigo_materia)}
+                      >
+                        Eliminar
+                      </CButton>
+                    </CTableDataCell>
+                  )}
+                </CTableRow>
+              ))}
+            </CTableBody>
+          </CTable>
+          {/* Paginación */}
+          {totalPaginas > 1 && (
+            <CPagination align="center" className="mt-3">
+              <CPaginationItem
+                disabled={paginaActual === 1}
+                onClick={() => cambiarPagina(paginaActual - 1)}
+              >
+                Anterior
+              </CPaginationItem>
+              {[...Array(totalPaginas)].map((_, idx) => (
+                <CPaginationItem
+                  key={idx + 1}
+                  active={paginaActual === idx + 1}
+                  onClick={() => cambiarPagina(idx + 1)}
+                >
+                  {idx + 1}
+                </CPaginationItem>
+              ))}
+              <CPaginationItem
+                disabled={paginaActual === totalPaginas}
+                onClick={() => cambiarPagina(paginaActual + 1)}
+              >
+                Siguiente
+              </CPaginationItem>
+            </CPagination>
+          )}
+        </CCol>
+      </CRow>
     </CContainer>
   );
 };

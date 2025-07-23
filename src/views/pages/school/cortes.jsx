@@ -1,10 +1,11 @@
 import { useState, useEffect } from "react";
 import {
-  CCard, CCardBody, CCardHeader, CCardTitle, CForm, CFormInput, CButton, CAlert,
+  CForm, CFormInput, CButton, CAlert,
   CTable, CTableHead, CTableRow, CTableHeaderCell, CTableBody, CTableDataCell,
   CPagination, CPaginationItem, CModal, CModalHeader, CModalTitle, CModalBody, CModalFooter, CCol, CRow
 } from "@coreui/react";
-import {apiUrl} from "../../../api"
+import { apiUrl } from "../../../api";
+
 const CrudCortes = () => {
   const [nombre, setNombre] = useState("");
   const [fechaInicio, setFechaInicio] = useState("");
@@ -24,9 +25,12 @@ const CrudCortes = () => {
   const [modalEliminar, setModalEliminar] = useState(false);
   const [idEliminar, setIdEliminar] = useState(null);
 
+  // Modal para crear momento
+  const [modalCrear, setModalCrear] = useState(false);
+
   // Obtener cortes al cargar
   const fetchCortes = async () => {
-    const res = await fetch(apiUrl+"/listarcortes");
+    const res = await fetch(apiUrl + "/listarcortes");
     const data = await res.json();
     setCortes(data.cortes || []);
   };
@@ -46,14 +50,14 @@ const CrudCortes = () => {
       return;
     }
     try {
-      const res = await fetch(apiUrl+"/crearcortes", {
+      const res = await fetch(apiUrl + "/crearcortes", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           nombre,
           fecha_inicio: fechaInicio,
-          fecha_fin: fechaFin
-        })
+          fecha_fin: fechaFin,
+        }),
       });
       const data = await res.json();
       if (res.ok) {
@@ -71,6 +75,7 @@ const CrudCortes = () => {
       setError("Error de conexión");
       setTimeout(() => setError(""), 2500);
     }
+    setModalCrear(false);
   };
 
   // Eliminar corte (abre modal)
@@ -82,8 +87,8 @@ const CrudCortes = () => {
   // Confirmar eliminación
   const confirmarEliminar = async () => {
     try {
-      const res = await fetch(apiUrl+`/eliminarcortes/${idEliminar}`, {
-        method: "DELETE"
+      const res = await fetch(apiUrl + `/eliminarcortes/${idEliminar}`, {
+        method: "DELETE",
       });
       const data = await res.json();
       if (res.ok) {
@@ -128,14 +133,14 @@ const CrudCortes = () => {
       return;
     }
     try {
-      const res = await fetch(apiUrl+`/editarcortes/${editId}`, {
+      const res = await fetch(apiUrl + `/editarcortes/${editId}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           nombre: editNombre,
           fecha_inicio: editFechaInicio,
-          fecha_fin: editFechaFin
-        })
+          fecha_fin: editFechaFin,
+        }),
       });
       const data = await res.json();
       if (res.ok) {
@@ -154,185 +159,256 @@ const CrudCortes = () => {
   };
 
   // Filtrar cortes por nombre o fecha
-  const cortesFiltrados = cortes.filter(corte =>
-    corte.nombre.toLowerCase().includes(busqueda.toLowerCase()) ||
-    (corte.fecha_inicio && corte.fecha_inicio.includes(busqueda)) ||
-    (corte.fecha_fin && corte.fecha_fin.includes(busqueda))
+  const cortesFiltrados = cortes.filter(
+    (corte) =>
+      corte.nombre.toLowerCase().includes(busqueda.toLowerCase()) ||
+      (corte.fecha_inicio && corte.fecha_inicio.includes(busqueda)) ||
+      (corte.fecha_fin && corte.fecha_fin.includes(busqueda))
   );
 
   // Paginación
   const totalPaginas = Math.ceil(cortesFiltrados.length / registrosPorPagina);
   const inicio = (pagina - 1) * registrosPorPagina;
-  const cortesPaginados = cortesFiltrados.slice(inicio, inicio + registrosPorPagina);
+  const cortesPaginados = cortesFiltrados.slice(
+    inicio,
+    inicio + registrosPorPagina
+  );
 
   useEffect(() => {
     setPagina(1); // Reinicia a la primera página al filtrar
   }, [busqueda]);
 
   // Función para mostrar solo la fecha (sin hora)
-  const soloFecha = (fecha) => fecha ? fecha.substring(0, 10) : "";
+  const soloFecha = (fecha) => (fecha ? fecha.substring(0, 10) : "");
 
   return (
-    <CCard className="shadow-sm mt-4" style={{ background: "#f1f3f0"}}>
-      <CCardHeader style={{ background: "#114c5f", color: "white" }}>
-        <CCardTitle>Gestión de Momentos</CCardTitle>
-      </CCardHeader>
-      <CCardBody>
-        {mensaje && <CAlert color="success">{mensaje}</CAlert>}
-        {error && <CAlert color="danger">{error}</CAlert>}
-        <CRow className="justify-content-center">
-          <CCol xs={12} md={8} lg={6}>
-            <CForm onSubmit={handleSubmit} className="mb-4">
-              <CFormInput
-                label="Nombre del momento"
-                placeholder="Ejm primer momento"
-                value={nombre}
-                onChange={e => setNombre(e.target.value)}
-                className="mb-3"
-                required
-              />
-              <CFormInput
-                label="Fecha de Inicio"
-                type="date"
-                value={fechaInicio}
-                onChange={e => setFechaInicio(e.target.value)}
-                className="mb-3"
-                required
-              />
-              <CFormInput
-                label="Fecha de Fin"
-                type="date"
-                value={fechaFin}
-                onChange={e => setFechaFin(e.target.value)}
-                className="mb-3"
-                required
-              />
-              <CButton type="submit" color="primary" style={{ background: "#114c5f", border: "none" }}>
-                Crear Corte
-              </CButton>
-            </CForm>
-          </CCol>
-        </CRow>
+    <div className="mt-4">
+      <CRow className="mb-2">
+        <CCol xs={12} md={6} className="d-flex gap-2 align-items-center">
+          <CButton
+            color="primary"
+            size="sm"
+            style={{
+              borderRadius: 8,
+              fontWeight: "bold",
+              fontSize: 15,
+              minWidth: 140,
+              boxShadow: "0 1px 6px #114c5f",
+              background: "linear-gradient(95deg, #114c5f 80%, #2699b0 100%)",
+            }}
+            onClick={() => setModalCrear(true)}
+          >
+            Crear Momento
+          </CButton>
+        </CCol>
+      </CRow>
 
-        {/* Barra de filtrado */}
-        <CFormInput
-          type="text"
-          placeholder="Filtrar por nombre o fecha..."
-          value={busqueda}
-          onChange={e => setBusqueda(e.target.value)}
-          className="mb-3"
-        />
+      {mensaje && <CAlert color="success">{mensaje}</CAlert>}
+      {error && <CAlert color="danger">{error}</CAlert>}
 
-        <CTable hover responsive bordered align="middle">
-          <CTableHead color="light">
-            <CTableRow style={{ textAlign: "center" }}>
-              <CTableHeaderCell>Nombre</CTableHeaderCell>
-              <CTableHeaderCell>Fecha de Inicio</CTableHeaderCell>
-              <CTableHeaderCell>Fecha de Fin</CTableHeaderCell>
-              <CTableHeaderCell>Acciones</CTableHeaderCell>
+      {/* Barra de filtrado */}
+      <CFormInput
+        type="text"
+        size="sm"
+        placeholder="Filtrar por nombre o fecha..."
+        value={busqueda}
+        onChange={(e) => setBusqueda(e.target.value)}
+        className="mb-3"
+      />
+
+      {/* Tabla de momentos */}
+      <CTable hover responsive bordered align="middle">
+        <CTableHead color="light">
+          <CTableRow style={{ textAlign: "center" }}>
+            <CTableHeaderCell>Nombre</CTableHeaderCell>
+            <CTableHeaderCell>Fecha de Inicio</CTableHeaderCell>
+            <CTableHeaderCell>Fecha de Fin</CTableHeaderCell>
+            <CTableHeaderCell>Acciones</CTableHeaderCell>
+          </CTableRow>
+        </CTableHead>
+        <CTableBody style={{ textAlign: "center" }}>
+          {cortesPaginados.map((corte) => (
+            <CTableRow key={corte.id_corte}>
+              <CTableDataCell>
+                {editId === corte.id_corte ? (
+                  <CFormInput
+                    size="sm"
+                    value={editNombre}
+                    onChange={(e) => setEditNombre(e.target.value)}
+                    required
+                  />
+                ) : (
+                  corte.nombre
+                )}
+              </CTableDataCell>
+              <CTableDataCell>
+                {editId === corte.id_corte ? (
+                  <CFormInput
+                    type="date"
+                    size="sm"
+                    value={editFechaInicio}
+                    onChange={(e) => setEditFechaInicio(e.target.value)}
+                    required
+                  />
+                ) : (
+                  soloFecha(corte.fecha_inicio)
+                )}
+              </CTableDataCell>
+              <CTableDataCell>
+                {editId === corte.id_corte ? (
+                  <CFormInput
+                    type="date"
+                    size="sm"
+                    value={editFechaFin}
+                    onChange={(e) => setEditFechaFin(e.target.value)}
+                    required
+                  />
+                ) : (
+                  soloFecha(corte.fecha_fin)
+                )}
+              </CTableDataCell>
+              <CTableDataCell>
+                {editId === corte.id_corte ? (
+                  <>
+                    <CButton
+                      color="success"
+                      size="sm"
+                      shape="rounded-pill"
+                      className="me-2"
+                      onClick={handleEditSave}
+                    >
+                      Guardar
+                    </CButton>
+                    <CButton
+                      color="danger"
+                      size="sm"
+                      shape="rounded-pill"
+                      onClick={handleEditCancel}
+                    >
+                      Cancelar
+                    </CButton>
+                  </>
+                ) : (
+                  <>
+                    <CButton
+                      color="info"
+                      size="sm"
+                      shape="rounded-pill"
+                      className="me-2"
+                      onClick={() => handleEditInit(corte)}
+                    >
+                      Editar
+                    </CButton>
+                    <CButton
+                      color="danger"
+                      size="sm"
+                      shape="rounded-pill"
+                      onClick={() => handleEliminar(corte.id_corte)}
+                    >
+                      Eliminar
+                    </CButton>
+                  </>
+                )}
+              </CTableDataCell>
             </CTableRow>
-          </CTableHead>
-          <CTableBody style={{ textAlign: "center" }}>
-            {cortesPaginados.map(corte => (
-              <CTableRow key={corte.id_corte}>
-                <CTableDataCell>
-                  {editId === corte.id_corte ? (
-                    <CFormInput
-                      value={editNombre}
-                      onChange={e => setEditNombre(e.target.value)}
-                      required
-                    />
-                  ) : (
-                    corte.nombre
-                  )}
-                </CTableDataCell>
-                <CTableDataCell>
-                  {editId === corte.id_corte ? (
-                    <CFormInput
-                      type="date"
-                      value={editFechaInicio}
-                      onChange={e => setEditFechaInicio(e.target.value)}
-                      required
-                    />
-                  ) : (
-                    soloFecha(corte.fecha_inicio)
-                  )}
-                </CTableDataCell>
-                <CTableDataCell>
-                  {editId === corte.id_corte ? (
-                    <CFormInput
-                      type="date"
-                      value={editFechaFin}
-                      onChange={e => setEditFechaFin(e.target.value)}
-                      required
-                    />
-                  ) : (
-                    soloFecha(corte.fecha_fin)
-                  )}
-                </CTableDataCell>
-                <CTableDataCell>
-                  {editId === corte.id_corte ? (
-                    <>
-                      <CButton style={{ background: "white", color: "green", borderColor:'green' }} size="sm" className="me-2" onClick={handleEditSave}>
-                        Guardar
-                      </CButton>
-                      <CButton style={{ background: "white", color: "red", borderColor:'red' }} size="sm" onClick={handleEditCancel}>
-                        Cancelar
-                      </CButton>
-                    </>
-                  ) : (
-                    <>
-                      <CButton style={{ background: "white", color: "#114c5f", borderColor:'#114c5f' }} size="sm" className="me-2" onClick={() => handleEditInit(corte)}>
-                        Editar
-                      </CButton>
-                      <CButton style={{ background: "white", color: "red", borderColor:'red' }} size="sm" onClick={() => handleEliminar(corte.id_corte)}>
-                        Eliminar
-                      </CButton>
-                    </>
-                  )}
-                </CTableDataCell>
-              </CTableRow>
+          ))}
+        </CTableBody>
+      </CTable>
+
+      {/* Paginación */}
+      {totalPaginas > 1 && (
+        <div className="d-flex justify-content-center mt-3">
+          <CPagination align="center" size="sm">
+            {[...Array(totalPaginas)].map((_, idx) => (
+              <CPaginationItem
+                key={idx}
+                active={pagina === idx + 1}
+                onClick={() => setPagina(idx + 1)}
+                style={{ cursor: "pointer" }}
+              >
+                {idx + 1}
+              </CPaginationItem>
             ))}
-          </CTableBody>
-        </CTable>
+          </CPagination>
+        </div>
+      )}
 
-        {/* Paginación */}
-        {totalPaginas > 1 && (
-          <div className="d-flex justify-content-center mt-3">
-            <CPagination align="center">
-              {[...Array(totalPaginas)].map((_, idx) => (
-                <CPaginationItem
-                  key={idx}
-                  active={pagina === idx + 1}
-                  onClick={() => setPagina(idx + 1)}
-                  style={{ cursor: "pointer" }}
-                >
-                  {idx + 1}
-                </CPaginationItem>
-              ))}
-            </CPagination>
-          </div>
-        )}
+      {/* Modal para crear momento */}
+      <CModal
+        visible={modalCrear}
+        onClose={() => setModalCrear(false)}
+        size="md"
+        alignment="center"
+        backdrop="static"
+      >
+        <CModalHeader className="bg-primary" style={{ borderRadius: 8 }}>
+          <CModalTitle className="text-white fs-6">Crear Momento</CModalTitle>
+        </CModalHeader>
+        <CModalBody style={{ background: "#f9fcfd", borderRadius: 8 }}>
+          <CForm onSubmit={handleSubmit}>
+            <CFormInput
+              label="Nombre del momento"
+              placeholder="Ejm primer momento"
+              size="sm"
+              value={nombre}
+              onChange={(e) => setNombre(e.target.value)}
+              className="mb-2"
+              required
+            />
+            <CFormInput
+              label="Fecha de Inicio"
+              type="date"
+              size="sm"
+              value={fechaInicio}
+              onChange={(e) => setFechaInicio(e.target.value)}
+              className="mb-2"
+              required
+            />
+            <CFormInput
+              label="Fecha de Fin"
+              type="date"
+              size="sm"
+              value={fechaFin}
+              onChange={(e) => setFechaFin(e.target.value)}
+              className="mb-2"
+              required
+            />
+            <div className="d-flex justify-content-end">
+              <CButton
+                type="submit"
+                color="primary"
+                size="sm"
+                shape="rounded-pill"
+                className="fw-bold px-4"
+              >
+                Crear
+              </CButton>
+            </div>
+          </CForm>
+        </CModalBody>
+      </CModal>
 
-        {/* Modal de confirmación para eliminar */}
-        <CModal visible={modalEliminar} onClose={() => setModalEliminar(false)}>
-          <CModalHeader>
-            <CModalTitle>Confirmar Eliminación</CModalTitle>
-          </CModalHeader>
-          <CModalBody>
-            ¿Seguro que desea eliminar este corte?
-          </CModalBody>
-          <CModalFooter>
-            <CButton color="danger" onClick={confirmarEliminar}>
-              Eliminar
-            </CButton>
-            <CButton color="secondary" onClick={() => setModalEliminar(false)}>
-              Cancelar
-            </CButton>
-          </CModalFooter>
-        </CModal>
-      </CCardBody>
-    </CCard>
+      {/* Modal de confirmación para eliminar */}
+      <CModal
+        visible={modalEliminar}
+        onClose={() => setModalEliminar(false)}
+        alignment="center"
+        backdrop="static"
+      >
+        <CModalHeader>
+          <CModalTitle>Confirmar Eliminación</CModalTitle>
+        </CModalHeader>
+        <CModalBody>¿Seguro que desea eliminar este corte?</CModalBody>
+        <CModalFooter>
+          <CButton color="danger" onClick={confirmarEliminar}>
+            Eliminar
+          </CButton>
+          <CButton color="secondary" onClick={() => setModalEliminar(false)}>
+            Cancelar
+          </CButton>
+        </CModalFooter>
+      </CModal>
+    </div>
   );
 };
 

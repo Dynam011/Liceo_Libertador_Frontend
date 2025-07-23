@@ -18,8 +18,11 @@ import {
   CModalFooter
 } from '@coreui/react';
 import CIcon from '@coreui/icons-react';
-import { cilUser, cilLockLocked } from '@coreui/icons';
+import { cilUser, cilLockLocked, cilAccountLogout } from '@coreui/icons';
 
+// Importa la imagen correctamente para el build
+import liceo2 from 'src/assets/images/liceo2.webp';
+import {apiUrl} from "../../api"
 const Login = () => {
   const navigate = useNavigate();
   const [usuario, setUsuario] = useState('');
@@ -30,14 +33,13 @@ const Login = () => {
   const handleLogin = async (e) => {
     e.preventDefault();
     try {
-      const response = await fetch("http://localhost:4000/login", {
+      const response = await fetch(apiUrl+"/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ usuario, contraseña }),
       });
 
       const data = await response.json();
-      console.log("Respuesta del servidor:", data);
 
       if (response.ok) {
         localStorage.setItem("token", data.token);
@@ -47,16 +49,13 @@ const Login = () => {
           rol: data.rol
         }));
 
-        // Si es docente, obtener materias asignadas
         if (data.rol === 'usuario') {
           try {
-            const resMaterias = await fetch("http://localhost:4000/recibir", {
+            const resMaterias = await fetch(apiUrl+"/recibir", {
               headers: { Authorization: `Bearer ${data.token}` }
             });
             const materiasData = await resMaterias.json();
-            // Suponiendo que el backend responde con { asignaciones: [{ materia: "Matemáticas" }, ...] }
             if (Array.isArray(materiasData.asignaciones)) {
-              // Extraer solo los nombres de las materias
               const materias = materiasData.asignaciones
                 .map(a => a.materia)
                 .filter(Boolean);
@@ -72,7 +71,6 @@ const Login = () => {
           localStorage.removeItem("materias_docente");
         }
 
-        // Navegar según el rol
         data.rol === 'admin'
           ? navigate("/admin/dashboard")
           : data.rol === 'usuario'
@@ -94,16 +92,17 @@ const Login = () => {
   return (
     <div className="min-vh-100 d-flex flex-row align-items-center"
       style={{
-        backgroundImage: "url('src/assets/images/liceo2.webp')",
+        backgroundImage: `url(${liceo2})`,
         backgroundSize: "cover",
         backgroundPosition: "center",
       }}
     >
       <CContainer>
         <CRow className="justify-content-center">
-          <CCol md={8}>
+          <CCol xs={12} md={8}>
             <CCardGroup>
-              <CCard className="p-4" style={{ background: '#fff', borderRight: '4px solidrgb(54, 121, 255)' }}>
+              {/* Login Card */}
+              <CCard className="p-4" style={{ background: '#fff', borderRight: '4px solid rgb(54, 121, 255)' }}>
                 <CCardBody>
                   <CForm onSubmit={handleLogin}>
                     <h1 className="text-black fw-bold mb-3">Iniciar Sesión</h1>
@@ -151,8 +150,19 @@ const Login = () => {
                       </CCol>
                     </CRow>
                   </CForm>
+                  {/* SOLO EN MÓVIL: Icono y texto para registrar */}
+                  <div className="d-block d-md-none mt-4 text-center">
+                    <Link to="/register" className="text-decoration-none">
+                      <CButton color="info" className="text-white px-2 mb-2" active tabIndex={-1}>
+                        <CIcon icon={cilAccountLogout} className="me-2" />
+                        ¿Aún no tienes una cuenta?
+                      </CButton>
+                    </Link>
+              
+                  </div>
                 </CCardBody>
               </CCard>
+              {/* Register Card (desktop only) */}
               <CCard
                 className="text-white py-5 d-none d-md-block"
                 style={{

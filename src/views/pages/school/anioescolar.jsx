@@ -1,6 +1,10 @@
 import React, { useState, useEffect, useRef } from "react";
-import { CForm, CFormInput, CButton, CAlert, CCard, CCardBody, CCardHeader, CCardTitle, CModal, CModalHeader, CModalTitle, CModalBody, CModalFooter } from "@coreui/react";
-import {apiUrl} from "../../../api"
+import {
+  CForm, CFormInput, CButton, CAlert, CRow, CCol, CContainer,
+  CModal, CModalHeader, CModalTitle, CModalBody, CModalFooter,
+  CTable, CTableHead, CTableRow, CTableHeaderCell, CTableBody, CTableDataCell
+} from "@coreui/react";
+import { apiUrl } from "../../../api";
 const API = apiUrl;
 
 // --- Módulo de listado y edición de años escolares ---
@@ -15,22 +19,9 @@ function ModuloAniosEscolaresAdmin({ recargar }) {
   const [modalEliminar, setModalEliminar] = useState(false);
   const [anioAEliminar, setAnioAEliminar] = useState(null);
 
-  // Permite recargar desde el padre
-  useEffect(() => {
-    recargarRef.current = cargarAnios;
-  });
-
-  useEffect(() => {
-    cargarAnios();
-    // eslint-disable-next-line
-  }, []);
-
-  useEffect(() => {
-    if (recargar) cargarAnios();
-    // eslint-disable-next-line
-  }, [recargar]);
-
-  // Cierra el mensaje automáticamente después de 2.5 segundos
+  useEffect(() => { recargarRef.current = cargarAnios; }, []);
+  useEffect(() => { cargarAnios(); }, []);
+  useEffect(() => { if (recargar) cargarAnios(); }, [recargar]);
   useEffect(() => {
     if (mensaje) {
       const timer = setTimeout(() => setMensaje(""), 2500);
@@ -93,60 +84,51 @@ function ModuloAniosEscolaresAdmin({ recargar }) {
   };
 
   return (
-    <>
-      <CCard className="shadow mt-4">
-        <CCardHeader style={{ background: "#114c5f", color: "#fff" }}>
-          <CCardTitle>Listado y Edición de Años Escolares</CCardTitle>
-        </CCardHeader>
-        <CCardBody>
-          {mensaje && <CAlert color="info" className="text-center">{mensaje}</CAlert>}
-          <div className="table-responsive">
-            <table className="table table-bordered align-middle">
-              <thead className="table-light">
-                <tr>
-                  <th>Nombre</th>
-                  <th style={{width: 180}}>Acciones</th>
-                </tr>
-              </thead>
-              <tbody>
-                {anios.map(a => (
-                  <tr key={a.id_año_escolar}>
-                    <td>
-                      {editando === a.id_año_escolar ? (
-                        <input
-                          value={nuevoNombre}
-                          onChange={e => setNuevoNombre(e.target.value)}
-                          className="form-control"
-                        />
-                      ) : (
-                        a.nombre
-                      )}
-                    </td>
-                    <td>
-                      {editando === a.id_año_escolar ? (
-                        <>
-                          <CButton style={{backgroundColor:'white', color:'green', borderColor:'green'}} size="sm" className="me-2" onClick={() => guardarEdicion(a.id_año_escolar)}>Guardar</CButton>
-                          <CButton style={{backgroundColor:'white', color:'blue', borderColor:'blue'}} size="sm" variant="outline" onClick={cancelarEdicion}>Cancelar</CButton>
-                        </>
-                      ) : (
-                        <>
-                          <CButton style={{backgroundColor:'white', color:'blue', borderColor:'blue'}} size="sm" className="me-2" onClick={() => iniciarEdicion(a.id_año_escolar, a.nombre)}>Editar</CButton>
-                          <CButton style={{backgroundColor:'white', color:'red', borderColor:'red'}} size="sm" variant="outline" onClick={() => confirmarEliminar(a.id_año_escolar)}>Eliminar</CButton>
-                        </>
-                      )}
-                    </td>
-                  </tr>
-                ))}
-                {anios.length === 0 && (
-                  <tr>
-                    <td colSpan={2} className="text-center">No hay años escolares registrados.</td>
-                  </tr>
+    <CContainer className="px-0 mt-4">
+      {mensaje && <CAlert color="info" className="text-center">{mensaje}</CAlert>}
+      <CTable bordered responsive className="align-middle">
+        <CTableHead color="light">
+          <CTableRow>
+            <CTableHeaderCell>Nombre</CTableHeaderCell>
+            <CTableHeaderCell style={{ width: 180 }}>Acciones</CTableHeaderCell>
+          </CTableRow>
+        </CTableHead>
+        <CTableBody>
+          {anios.map(a => (
+            <CTableRow key={a.id_año_escolar}>
+              <CTableDataCell>
+                {editando === a.id_año_escolar ? (
+                  <CFormInput
+                    value={nuevoNombre}
+                    onChange={e => setNuevoNombre(e.target.value)}
+                    size="sm"
+                  />
+                ) : (
+                  a.nombre
                 )}
-              </tbody>
-            </table>
-          </div>
-        </CCardBody>
-      </CCard>
+              </CTableDataCell>
+              <CTableDataCell>
+                {editando === a.id_año_escolar ? (
+                  <>
+                    <CButton color="success" size="sm" className="me-2" onClick={() => guardarEdicion(a.id_año_escolar)}>Guardar</CButton>
+                    <CButton color="secondary" size="sm" variant="outline" onClick={cancelarEdicion}>Cancelar</CButton>
+                  </>
+                ) : (
+                  <>
+                    <CButton color="info" size="sm" className="me-2" onClick={() => iniciarEdicion(a.id_año_escolar, a.nombre)}>Editar</CButton>
+                    <CButton color="danger" size="sm" variant="outline" onClick={() => confirmarEliminar(a.id_año_escolar)}>Eliminar</CButton>
+                  </>
+                )}
+              </CTableDataCell>
+            </CTableRow>
+          ))}
+          {anios.length === 0 && (
+            <CTableRow>
+              <CTableDataCell colSpan={2} className="text-center">No hay años escolares registrados.</CTableDataCell>
+            </CTableRow>
+          )}
+        </CTableBody>
+      </CTable>
       {/* Modal de confirmación */}
       <CModal visible={modalEliminar} onClose={() => setModalEliminar(false)}>
         <CModalHeader>
@@ -156,22 +138,20 @@ function ModuloAniosEscolaresAdmin({ recargar }) {
           ¿Seguro que deseas eliminar este año escolar?
         </CModalBody>
         <CModalFooter>
-          <CButton style={{backgroundColor:'white', color:'red', borderColor:'red'}} onClick={eliminarAnio}>Eliminar</CButton>
-          <CButton style={{backgroundColor:'white', color:'blue', borderColor:'blue'}} variant="outline" onClick={() => setModalEliminar(false)}>Cancelar</CButton>
+          <CButton color="danger" onClick={eliminarAnio}>Eliminar</CButton>
+          <CButton color="secondary" variant="outline" onClick={() => setModalEliminar(false)}>Cancelar</CButton>
         </CModalFooter>
       </CModal>
-    </>
+    </CContainer>
   );
 }
 
-// --- Formulario de creación de año escolar ---
-export default function CrearAnioEscolar() {
+// --- MODAL CREAR AÑO ESCOLAR ---
+function ModalCrearAnioEscolar({ visible, onClose, onSuccess }) {
   const [nombre, setNombre] = useState("");
   const [mensaje, setMensaje] = useState("");
   const [tipo, setTipo] = useState("success");
-  const [recargar, setRecargar] = useState(false);
 
-  // Cierra el mensaje automáticamente después de 2.5 segundos
   useEffect(() => {
     if (mensaje) {
       const timer = setTimeout(() => setMensaje(""), 2500);
@@ -183,7 +163,7 @@ export default function CrearAnioEscolar() {
     e.preventDefault();
     setMensaje("");
     try {
-      const res = await fetch(apiUrl+"/anios-escolares", {
+      const res = await fetch(apiUrl + "/anios-escolares", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ nombre }),
@@ -193,7 +173,8 @@ export default function CrearAnioEscolar() {
         setTipo("success");
         setMensaje("Año escolar creado correctamente");
         setNombre("");
-        setRecargar(r => !r); // Fuerza recarga del listado
+        if (onSuccess) onSuccess();
+        onClose();
       } else {
         setTipo("danger");
         setMensaje(data.mensaje || "Error al crear año escolar");
@@ -205,30 +186,52 @@ export default function CrearAnioEscolar() {
   };
 
   return (
-    <div style={{ maxWidth: 600, margin: "40px auto" }}>
-      <CCard className="shadow">
-        <CCardHeader style={{ background: "#114c5f", color: "#fff" }}>
-          <CCardTitle>Crear Año Escolar</CCardTitle>
-        </CCardHeader>
-        <CCardBody>
-          <CForm onSubmit={handleSubmit}>
-            <CFormInput
-              label="Nombre del año escolar"
-              placeholder="Ej: 2024-2025"
-              value={nombre}
-              onChange={e => setNombre(e.target.value)}
-              required
-              className="mb-3"
-            />
-            <div className="d-grid">
-              <CButton style={{backgroundColor:'#114c5f', color:'white'}} type="submit">Crear</CButton>
-            </div>
-          </CForm>
-          {mensaje && <CAlert color={tipo} className="mt-3 text-center">{mensaje}</CAlert>}
-        </CCardBody>
-      </CCard>
-      {/* Módulo de listado debajo del formulario */}
+    <CModal visible={visible} onClose={onClose} alignment="center" size="sm">
+      <CModalHeader>
+        <CModalTitle>Crear Año Escolar</CModalTitle>
+      </CModalHeader>
+      <CModalBody>
+        <CForm onSubmit={handleSubmit}>
+          <CFormInput
+            label="Nombre del año escolar"
+            placeholder="Ej: 2024-2025"
+            value={nombre}
+            onChange={e => setNombre(e.target.value)}
+            required
+            className="mb-3"
+          />
+          <div className="d-grid">
+            <CButton color="info" type="submit">Crear</CButton>
+          </div>
+        </CForm>
+        {mensaje && <CAlert color={tipo} className="mt-3 text-center">{mensaje}</CAlert>}
+      </CModalBody>
+    </CModal>
+  );
+}
+
+// --- Página principal ---
+export default function CrearAnioEscolar() {
+  const [recargar, setRecargar] = useState(false);
+  const [modalCrearVisible, setModalCrearVisible] = useState(false);
+
+  const handleRecargar = () => setRecargar(r => !r);
+
+  return (
+    <CContainer className="py-4" style={{ maxWidth: 700 }}>
+      <CRow className="mb-3">
+        <CCol xs={12}>
+          <CButton color="info" className="w-10 mb-2" onClick={() => setModalCrearVisible(true)}>
+            Crear Año Escolar
+          </CButton>
+        </CCol>
+      </CRow>
+      <ModalCrearAnioEscolar
+        visible={modalCrearVisible}
+        onClose={() => setModalCrearVisible(false)}
+        onSuccess={handleRecargar}
+      />
       <ModuloAniosEscolaresAdmin recargar={recargar} />
-    </div>
+    </CContainer>
   );
 }
