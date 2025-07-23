@@ -2,7 +2,7 @@ import React, { Suspense, useEffect } from 'react'
 import { BrowserRouter, Route, Routes } from 'react-router-dom'
 import { CSpinner, useColorModes } from '@coreui/react'
 import RestablecerContrasena from "src/components/RestablecerContrasena.js";
-import SolicitarRecuperacion from './views/pages/school/RecuperarContrasena.js';
+import SolicitarRecuperacion from './views/pages/school/RecuperarContrasena';
 import './scss/style.scss'
 import './scss/examples.scss'
 
