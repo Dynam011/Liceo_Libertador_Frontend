@@ -20,7 +20,7 @@ const ConstanciaEst = React.lazy(() => import('./views/pages/school/ConstanciaEs
 const Director = React.lazy(() => import('./views/pages/school/director'))
 const ImprimirNotas = React.lazy(() => import('./views/pages/school/ImprimirNotas'))
 const ConstanciaDoc = React.lazy(() => import('./views/pages/school/ConstanciaDoc'))
-const Lista = React.lazy(() => import('./views/pages/school/lista'))
+const RecuperarContrasena = React.lazy(() => import('./views/pages/school/RecuperarContrasena'))
 const Usuario = React.lazy(() => import('./views/pages/school/usuario'))
 const Anioescolar = React.lazy(() => import('./views/pages/school/anioescolar'))
 const editar = React.lazy(() => import('./views/pages/school/editar'))
@@ -52,7 +52,7 @@ const routes = [
   { path: '/director', name: 'Director', element: Director },
   { path: '/imprimir/notas', name: 'Imprimir notas', element: ImprimirNotas , private: true},
   { path: '/constancia/docente', name: 'Constancia Docente', element: ConstanciaDoc },
-  { path: '/lista', name: 'lista', element: Lista },
+  { path: '/recuperar/contra', name: 'Recuperar Contraseña', element: RecuperarContrasena },
   { path: '/usuario', name: 'Usuario', element: Usuario },
  { path: '/anioescolar', name: 'Anio', element: Anioescolar },
  { path: '/editar', name: 'editar', element: editar },

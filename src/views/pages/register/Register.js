@@ -12,6 +12,7 @@ import {
     CCardHeader
 } from '@coreui/react';
 import {apiUrl} from "../../../api"
+import liceo2 from 'src/assets/images/liceo2.webp';
 const Formulario = () => {
     const [cedula, setCedula] = useState('');
     const [fkDocumento, setFkDocumento] = useState('');
@@ -92,7 +93,7 @@ const Formulario = () => {
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                backgroundImage: "url('src/assets/images/liceo2.webp')",
+                backgroundImage: `url(${liceo2})`,
                 backgroundSize: "cover",
                 backgroundPosition: "center",
             }}

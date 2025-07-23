@@ -1,10 +1,9 @@
 import { useState, useEffect } from "react";
 import {
-  CContainer, CRow, CCol, CCard, CCardHeader, CCardBody, CCardTitle,
+  CContainer, CRow, CCol, 
   CForm, CFormLabel, CFormInput, CFormSelect, CButton, CAlert, CListGroup, CListGroupItem,
   CTable, CTableHead, CTableRow, CTableHeaderCell, CTableBody, CTableDataCell,
-  CModal, CModalHeader, CModalTitle, CModalBody, CModalFooter, CAccordion , CAccordionItem, CAccordionHeader, CAccordionBody
-} from "@coreui/react";
+  CModal, CModalHeader, CModalTitle, CModalBody, CModalFooter} from "@coreui/react";
 import {apiUrl} from "../../../api"
 // --- Componente principal unificado ---
 const InscribirMateria = () => {

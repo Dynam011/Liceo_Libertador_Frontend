@@ -1,7 +1,7 @@
-import  { React, useState, useEffect } from "react";
+import  { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { CForm, CFormInput, CButton, CAlert, CContainer, CRow, CCol, CCard, CCardBody, CCardTitle } from "@coreui/react";
-  
+  import liceo2 from 'src/assets/images/liceo2.webp';
 import {apiUrl} from "../../../api"
 const SolicitarRecuperacion = () => {
   const [email, setEmail] = useState("");
@@ -11,7 +11,7 @@ const SolicitarRecuperacion = () => {
 
   useEffect(() => {
     const original = document.body.style.background;
-    document.body.style.background = 'url("/src/assets/images/liceo2.webp") center center / cover no-repeat fixed';
+    document.body.style.background = `url(${liceo2}) center center / cover no-repeat fixed`;
     return () => { document.body.style.background = original; };
   }, []);
 
