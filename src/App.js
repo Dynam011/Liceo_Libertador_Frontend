@@ -2,7 +2,7 @@ import React, { Suspense, useEffect } from 'react'
 import { BrowserRouter, Route, Routes } from 'react-router-dom'
 import { CSpinner, useColorModes } from '@coreui/react'
 import RestablecerContrasena from "src/components/RestablecerContrasena.js";
-import SolicitarRecuperacion from './views/pages/school/lista';
+import SolicitarRecuperacion from './views/pages/school/RecuperarContrasena.js';
 import './scss/style.scss'
 import './scss/examples.scss'
 
@@ -53,7 +53,7 @@ const App = () => {
           <Route path="/404" element={<Page404 />} />
           <Route path="/500" element={<Page500 />} />
           <Route path="/restablecer/:token" element={<RestablecerContrasena />} />
-          <Route path="/lista" element={<SolicitarRecuperacion />} />
+          <Route path="//recuperar/contra" element={<SolicitarRecuperacion />} />
 
           {/* Rutas privadas: todo lo demás va dentro del layout */}
           <Route path="*" element={<DefaultLayout />} />
