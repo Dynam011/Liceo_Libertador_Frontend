@@ -15,6 +15,8 @@ import {
   CAlert,
 } from "@coreui/react";
 import {apiUrl} from "../../../api"
+const token = localStorage.getItem("token");
+
 const EstudianteForm = () => {
   const [formData, setFormData] = useState({
     fk_documento: '',
@@ -37,7 +39,13 @@ const EstudianteForm = () => {
 
   // Obtener tipos de documento
   useEffect(() => {
-    fetch(apiUrl+'/tipos-documento')
+    fetch(apiUrl+'/tipos-documento',
+      {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      }
+    )
       .then(res => res.json())
       .then(data => setTiposDocumento(data))
       .catch(() => setTiposDocumento([]));
@@ -45,7 +53,13 @@ const EstudianteForm = () => {
 
   // Obtener nacionalidades
   useEffect(() => {
-    fetch(apiUrl+'/nacionalidades')
+    fetch(apiUrl+'/nacionalidades',
+      {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      }
+    )
       .then(res => res.json())
       .then(data => setNacionalidades(data))
       .catch(() => setNacionalidades([]));
@@ -64,7 +78,9 @@ const EstudianteForm = () => {
     try {
       const response = await fetch(apiUrl+'/registrar', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json' ,
+          'Authorization': `Bearer ${token}`
+        },
         body: JSON.stringify(formData)
       });
 

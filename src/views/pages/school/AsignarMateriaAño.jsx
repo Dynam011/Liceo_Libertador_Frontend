@@ -22,7 +22,7 @@ import {
   CModalFooter,
 } from "@coreui/react";
 import { apiUrl } from "../../../api";
-
+ const token = localStorage.getItem("token");
 // CRUD Asignaciones Año-Materia
 function CrudAsignacionesAnioMateria() {
   const [asignaciones, setAsignaciones] = useState([]);
@@ -35,7 +35,12 @@ function CrudAsignacionesAnioMateria() {
   const [idEliminar, setIdEliminar] = useState(null);
 
   useEffect(() => {
-    fetch(apiUrl + '/asignaciones-anio-materia')
+   
+    fetch(apiUrl + '/asignaciones-anio-materia', {
+      headers: {
+        'Authorization': `Bearer ${token}`
+      }
+    })
       .then(r => r.json())
       .then(data => setAsignaciones(Array.isArray(data) ? data : (data.asignaciones || [])));
   }, []);
@@ -46,7 +51,11 @@ function CrudAsignacionesAnioMateria() {
   };
 
   const confirmarEliminar = async () => {
-    await fetch(apiUrl + `/asignaciones-anio-materia/${idEliminar}`, { method: 'DELETE' });
+    await fetch(apiUrl + `/asignaciones-anio-materia/${idEliminar}`, { 
+      headers: {
+        'Authorization': `Bearer ${token}`
+      },
+      method: 'DELETE' });
     setAsignaciones(asignaciones.filter(a => a.id_año_materia !== idEliminar));
     setMensaje("Asignación eliminada");
     setTimeout(() => setMensaje(""), 2000);
@@ -227,11 +236,23 @@ const AsignarMateria = () => {
 
   const obtenerMateriasYAnios = async () => {
     try {
-      const resMaterias = await fetch(apiUrl + "/materias");
+      const resMaterias = await fetch(apiUrl + "/materias",
+        {
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        }
+      );
       const dataMaterias = await resMaterias.json();
       setMaterias(dataMaterias.materias || []);
 
-      const resAnios = await fetch(apiUrl + "/anios");
+      const resAnios = await fetch(apiUrl + "/anios",
+        {
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        }
+      );
       const dataAnios = await resAnios.json();
       setAnios(dataAnios.anios || []);
     } catch (error) {
@@ -245,7 +266,8 @@ const AsignarMateria = () => {
       const res = await fetch(apiUrl + "/asignar-seccion", {
         method: "POST",
         headers: {
-          "Content-Type": "application/json"
+          "Content-Type": "application/json",
+          'Authorization': `Bearer ${token}`
         },
         body: JSON.stringify({
           codigo_materia: codigoMateria,

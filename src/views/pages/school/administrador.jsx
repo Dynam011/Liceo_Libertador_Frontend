@@ -6,7 +6,7 @@ import {
 } from "@coreui/react";
 import {apiUrl} from "../../../api"
 const API = apiUrl;
-
+const token = localStorage.getItem("token");
 export default function AdministradorNotas() {
   const [aniosEscolares, setAniosEscolares] = useState([]);
   const [anios, setAnios] = useState([]);
@@ -26,14 +26,26 @@ export default function AdministradorNotas() {
 
   // Cargar años escolares al inicio
   useEffect(() => {
-    fetch(`${API}/admin-notas-anios-escolares`)
+    fetch(`${API}/admin-notas-anios-escolares`,
+      {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      }
+    )
       .then(r => r.json())
       .then(r => setAniosEscolares(r.aniosEscolaresAdmin || []));
   }, []);
 
   // Cargar años (grados) al inicio
   useEffect(() => {
-    fetch(`${API}/admin-notas-anios`)
+    fetch(`${API}/admin-notas-anios`,
+      {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      }
+    )
       .then(r => r.json())
       .then(r => setAnios(r.aniosAdmin || []));
   }, []);
@@ -41,7 +53,13 @@ export default function AdministradorNotas() {
   // Cargar secciones
   useEffect(() => {
     if (filtros.id_año) {
-      fetch(`${API}/admin-notas-secciones?id_año=${filtros.id_año}`)
+      fetch(`${API}/admin-notas-secciones?id_año=${filtros.id_año}`,
+        {
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        }
+      )
         .then(r => r.json())
         .then(r => setSecciones(r.seccionesAdmin || []));
     } else {
@@ -56,7 +74,13 @@ export default function AdministradorNotas() {
   // Cargar materias
   useEffect(() => {
     if (filtros.id_seccion && filtros.id_año_escolar) {
-      fetch(`${API}/admin-notas-materias?id_seccion=${filtros.id_seccion}&id_año_escolar=${filtros.id_año_escolar}`)
+      fetch(`${API}/admin-notas-materias?id_seccion=${filtros.id_seccion}&id_año_escolar=${filtros.id_año_escolar}`,
+        {
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        }
+      )
         .then(r => r.json())
         .then(r => setMaterias(r.materiasAdmin || []));
     } else {
@@ -70,7 +94,13 @@ export default function AdministradorNotas() {
   useEffect(() => {
     if (filtros.id_seccion && filtros.id_año_escolar && materiaSeleccionada) {
       setLoading(true);
-      fetch(`${API}/admin-notas-estudiantes-materia?id_seccion=${filtros.id_seccion}&id_año_escolar=${filtros.id_año_escolar}&id_año_materia=${materiaSeleccionada}`)
+      fetch(`${API}/admin-notas-estudiantes-materia?id_seccion=${filtros.id_seccion}&id_año_escolar=${filtros.id_año_escolar}&id_año_materia=${materiaSeleccionada}`,
+        {
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        }
+      )
         .then(r => r.json())
         .then(r => setEstudiantes(r.estudiantesNotasAdmin || []))
         .finally(() => setLoading(false));
@@ -107,13 +137,21 @@ export default function AdministradorNotas() {
     }
     await fetch(`${API}/admin-notas-editar`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
+       },
       body: JSON.stringify(body)
     });
     setEditando(null);
     setNuevaNota('');
     // Refrescar estudiantes y notas
-    fetch(`${API}/admin-notas-estudiantes-materia?id_seccion=${filtros.id_seccion}&id_año_escolar=${filtros.id_año_escolar}&id_año_materia=${materiaSeleccionada}`)
+    fetch(`${API}/admin-notas-estudiantes-materia?id_seccion=${filtros.id_seccion}&id_año_escolar=${filtros.id_año_escolar}&id_año_materia=${materiaSeleccionada}`,
+      {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      }
+    )
       .then(r => r.json())
       .then(r => setEstudiantes(r.estudiantesNotasAdmin || []))
       .finally(() => setLoading(false));

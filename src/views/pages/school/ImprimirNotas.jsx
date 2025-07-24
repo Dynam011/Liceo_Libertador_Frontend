@@ -5,6 +5,7 @@ import {
   CFormSelect, CPagination, CPaginationItem
 } from "@coreui/react";
 import {apiUrl} from "../../../api"
+const token = localStorage.getItem("token");
 const MisAsignaciones = () => {
   const [asignaciones, setAsignaciones] = useState([]);
   const [aniosEscolares, setAniosEscolares] = useState([]);
@@ -14,7 +15,7 @@ const MisAsignaciones = () => {
 
   useEffect(() => {
     const fetchAsignaciones = async () => {
-      const token = localStorage.getItem("token");
+     
       const res = await fetch(apiUrl+"/recibir", {
         headers: { Authorization: `Bearer ${token}` }
       });

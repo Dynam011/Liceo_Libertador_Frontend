@@ -5,6 +5,7 @@ import {
   CModal, CModalHeader, CModalTitle, CModalBody, CModalFooter, CFormSelect, CAlert, CSpinner, CFormInput
 } from "@coreui/react";
 import {apiUrl} from "../../../api"
+const token = localStorage.getItem("token");
 // --- CSS en línea para la tabla y los botones ---
 const tablaEstilos = `
 .tabla-asignaciones th, .tabla-asignaciones td {
@@ -61,10 +62,34 @@ const AsignacionesDocenteAdmin = () => {
   const fetchCatalogos = async () => {
     try {
       const [docRes, matRes, secRes, anioRes] = await Promise.all([
-        fetch(apiUrl+"/docentes"),
-        fetch(apiUrl+"/materias-anio"),
-        fetch(apiUrl+"/secciones"),
-        fetch(apiUrl+"/aniosescolares")
+        fetch(apiUrl+"/docentes",
+          {
+            headers: {
+              'Authorization': `Bearer ${token}`
+            }
+          }
+        ),
+        fetch(apiUrl+"/materias-anio",
+          {
+            headers: {
+              'Authorization': `Bearer ${token}`
+            }
+          }
+        ),
+        fetch(apiUrl+"/secciones",
+          {
+            headers: {
+              'Authorization': `Bearer ${token}`
+            }
+          }
+        ),
+        fetch(apiUrl+"/aniosescolares",
+          {
+            headers: {
+              'Authorization': `Bearer ${token}`
+            }
+          }
+        )
       ]);
       setDocentes((await docRes.json()).docentes || []);
       setMaterias((await matRes.json()).añosMateria || []);
@@ -82,7 +107,10 @@ const AsignacionesDocenteAdmin = () => {
   const handleDelete = async () => {
     try {
       const res = await fetch(apiUrl+`/asignaciones-docente/${asignacionDelete.id_asignacion}`, {
-        method: "DELETE"
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" ,
+          'Authorization': `Bearer ${token}`
+        }
       });
       const data = await res.json();
       setMensaje(data.mensaje);
@@ -98,7 +126,9 @@ const AsignacionesDocenteAdmin = () => {
     try {
       const res = await fetch(apiUrl+`/asignaciones-docente/${asignacionEdit.id_asignacion}`, {
         method: "PUT",
-        headers: { "Content-Type": "application/json" },
+        headers: { "Content-Type": "application/json",
+          'Authorization': `Bearer ${token}`
+         },
         body: JSON.stringify(asignacionEdit)
       });
       const data = await res.json();

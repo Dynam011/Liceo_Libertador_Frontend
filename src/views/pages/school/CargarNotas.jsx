@@ -6,6 +6,7 @@ import {
 import CIcon from '@coreui/icons-react';
 import { cilSave, cilPencil } from '@coreui/icons';
 import {apiUrl} from "../../../api"
+const token = localStorage.getItem("token");
 const CargarNotasDocente = () => {
   const [materias, setMaterias] = useState([]);
   const [materiaSeleccionada, setMateriaSeleccionada] = useState(null);
@@ -19,7 +20,7 @@ const CargarNotasDocente = () => {
 
   useEffect(() => {
     const fetchMaterias = async () => {
-      const token = localStorage.getItem("token");
+
       const res = await fetch(apiUrl+"/docente/materias-estudiantes", {
         headers: { Authorization: `Bearer ${token}` },
         'Cache-Control': 'no-cache'
@@ -37,7 +38,11 @@ const CargarNotasDocente = () => {
 
   useEffect(() => {
     const fetchCortes = async () => {
-      const res = await fetch(apiUrl+"/cortes");
+      const res = await fetch(apiUrl+"/cortes",
+        {
+          headers: { Authorization: `Bearer ${token}` }
+        }
+      );
       const data = await res.json();
       setCortes(data.cortes || []);
     };
@@ -51,7 +56,7 @@ const CargarNotasDocente = () => {
   }, [anioSeleccionado]);
 
   const fetchHistorial = async (id_materia_inscrita) => {
-    const token = localStorage.getItem("token");
+
     const res = await fetch(apiUrl+`/evaluaciones/${id_materia_inscrita}`, {
       headers: { Authorization: `Bearer ${token}` }
     });
@@ -81,7 +86,7 @@ const CargarNotasDocente = () => {
 
   // Guardar todas las notas de todos los lapsos habilitados y reparación
   const handleGuardarNotas = async (idEstudianteEditar = null) => {
-    const token = localStorage.getItem("token");
+
     const promises = [];
     (materiaSeleccionada.estudiantes || []).forEach(est => {
       // Si estamos editando solo un estudiante, solo guarda ese

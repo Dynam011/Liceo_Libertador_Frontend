@@ -6,7 +6,7 @@ import {
 } from "@coreui/react";
 import { apiUrl } from "../../../api";
 const API = apiUrl;
-
+const token = localStorage.getItem("token");
 // --- Módulo de listado y edición de años escolares ---
 function ModuloAniosEscolaresAdmin({ recargar }) {
   const [anios, setAnios] = useState([]);
@@ -30,7 +30,13 @@ function ModuloAniosEscolaresAdmin({ recargar }) {
   }, [mensaje]);
 
   function cargarAnios() {
-    fetch(`${API}/admin-anios-escolares`)
+    fetch(`${API}/admin-anios-escolares`,
+      {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      }
+    )
       .then(r => r.json())
       .then(r => setAnios(r.aniosEscolaresAdmin || []));
   }
@@ -50,7 +56,9 @@ function ModuloAniosEscolaresAdmin({ recargar }) {
   const guardarEdicion = async (id) => {
     const res = await fetch(`${API}/admin-anios-escolares/${id}`, {
       method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
+       },
       body: JSON.stringify({ nombre: nuevoNombre })
     });
     const data = await res.json();
@@ -71,7 +79,11 @@ function ModuloAniosEscolaresAdmin({ recargar }) {
 
   const eliminarAnio = async () => {
     if (!anioAEliminar) return;
-    const res = await fetch(`${API}/admin-anios-escolares/${anioAEliminar}`, { method: 'DELETE' });
+    const res = await fetch(`${API}/admin-anios-escolares/${anioAEliminar}`, { method: 'DELETE',
+      headers: {
+        'Authorization': `Bearer ${token}`
+      }
+     });
     const data = await res.json();
     if (res.ok) {
       setAnios(anios.filter(a => a.id_año_escolar !== anioAEliminar));

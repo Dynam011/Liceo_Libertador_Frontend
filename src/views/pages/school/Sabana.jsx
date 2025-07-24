@@ -3,6 +3,7 @@ import {
   CContainer, CRow, CCol, CCard, CCardHeader, CCardBody, CForm, CFormSelect, CButton, CAlert
 } from "@coreui/react";
 import {apiUrl} from "../../../api"
+const token = localStorage.getItem("token");
 const DescargarNotasSeccion = () => {
   const [aniosEscolares, setAniosEscolares] = useState([]);
   const [anios, setAnios] = useState([]);
@@ -16,10 +17,22 @@ const DescargarNotasSeccion = () => {
 
   // Cargar años escolares (nuevo endpoint)
   useEffect(() => {
-    fetch(apiUrl+"/anios-escolares-filtrado")
+    fetch(apiUrl+"/anios-escolares-filtrado",
+      {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      }
+    )
       .then(res => res.json())
       .then(data => setAniosEscolares(data.listaAniosEscolares || []));
-    fetch(apiUrl+"/anios")
+    fetch(apiUrl+"/anios",
+      {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      }
+    )
       .then(res => res.json())
       .then(data => setAnios(data.anios || []));
   }, []);
@@ -27,7 +40,14 @@ const DescargarNotasSeccion = () => {
   // Cargar secciones según año seleccionado (nuevo endpoint)
   useEffect(() => {
     if (filtros.id_año) {
-      fetch(apiUrl+`/secciones-por-anio?id_año=${filtros.id_año}`)
+      fetch(apiUrl+`/secciones-por-anio?id_año=${filtros.id_año}`,
+        {
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        }
+
+      )
         .then(res => res.json())
         .then(data => setSecciones(data.listaSecciones || []));
     } else {

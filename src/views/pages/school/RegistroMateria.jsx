@@ -24,6 +24,9 @@ import {
 } from "@coreui/react";
 import { apiUrl } from "../../../api";
 
+const token = localStorage.getItem("token");
+
+
 const MateriaForm = () => {
   const [codigo_materia, setCodigoMateria] = useState("");
   const [nombre, setNombre] = useState("");
@@ -52,7 +55,13 @@ const MateriaForm = () => {
 
   const obtenerMaterias = async () => {
     try {
-      const res = await fetch(apiUrl + "/materiasregistradas");
+      const res = await fetch(apiUrl + "/materiasregistradas",
+        {
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        }
+      );
       const data = await res.json();
       setMaterias(data);
     } catch (error) {
@@ -70,7 +79,9 @@ const MateriaForm = () => {
     try {
       const res = await fetch(apiUrl + "/materias", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { "Content-Type": "application/json" ,
+          'Authorization': `Bearer ${token}`
+        },
         body: JSON.stringify({ codigo_materia, nombre }),
       });
 
@@ -107,7 +118,9 @@ const MateriaForm = () => {
         apiUrl + `/materias/${materiaSeleccionada.codigo_materia}`,
         {
           method: "PUT",
-          headers: { "Content-Type": "application/json" },
+          headers: { "Content-Type": "application/json" ,
+            'Authorization': `Bearer ${token}`
+          },
           body: JSON.stringify({
             nuevo_codigo: nuevoCodigo || null,
             nombre: nuevoNombre || null,
@@ -140,6 +153,9 @@ const MateriaForm = () => {
     try {
       await fetch(apiUrl + `/materias/${codigoEliminar}`, {
         method: "DELETE",
+        headers: { "Content-Type": "application/json" ,
+          'Authorization': `Bearer ${token}`
+        },
       });
       obtenerMaterias();
       setMensaje("Materia eliminada correctamente.");

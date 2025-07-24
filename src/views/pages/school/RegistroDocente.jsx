@@ -15,6 +15,7 @@ import {
   CContainer,
 } from "@coreui/react";
 import {apiUrl} from "../../../api"
+const token = localStorage.getItem("token");
 const RegistroDocente = () => {
   const [cedulas, setCedulas] = useState([]);
   const [filtroCedula, setFiltroCedula] = useState(""); // Nuevo estado para el filtro
@@ -37,7 +38,14 @@ const RegistroDocente = () => {
   useEffect(() => {
     const cargarCedulas = async () => {
       try {
-        const res = await fetch(apiUrl+"/usuarios/cedulas");
+        const res = await fetch(apiUrl+"/usuarios/cedulas",
+          {
+            headers: {
+              'Authorization': `Bearer ${token}`
+            }
+          }
+
+        );
         const data = await res.json();
         setCedulas(data);
       } catch (error) {
@@ -60,7 +68,9 @@ const RegistroDocente = () => {
     try {
       const res = await fetch(apiUrl+"/docente", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { "Content-Type": "application/json",
+          'Authorization': `Bearer ${token}`
+         },
         body: JSON.stringify(formulario),
       });
 

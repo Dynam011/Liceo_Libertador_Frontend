@@ -12,6 +12,7 @@ import {
   CAlert,
 } from "@coreui/react";
 import {apiUrl} from "../../../api"
+const token = localStorage.getItem("token");
 const BuscarDocenteConstancia = () => {
   const [cedula, setCedula] = useState("");
   const [docente, setDocente] = useState(null);
@@ -23,7 +24,13 @@ const BuscarDocenteConstancia = () => {
     setDocente(null);
 
     try {
-      const res = await fetch(apiUrl+`/docente/${cedula}`);
+      const res = await fetch(apiUrl+`/docente/${cedula}`,
+        {
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        }
+      );
       if (!res.ok) {
         setMensaje("Docente no encontrado");
         return;

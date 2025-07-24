@@ -5,6 +5,7 @@ import {
   CTable, CTableHead, CTableRow, CTableHeaderCell, CTableBody, CTableDataCell,
   CModal, CModalHeader, CModalTitle, CModalBody, CModalFooter} from "@coreui/react";
 import {apiUrl} from "../../../api"
+const token = localStorage.getItem("token");
 // --- Componente principal unificado ---
 const InscribirMateria = () => {
   // --- Estados para Inscribir Estudiante ---
@@ -54,7 +55,9 @@ const [modalInscribir, setModalInscribir] = useState(false);
 
   const obtenerSecciones = async () => {
     try {
-      const resSecciones = await fetch(apiUrl+"/secciones");
+      const resSecciones = await fetch(apiUrl+"/secciones",
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
       const dataSecciones = await resSecciones.json();
       setSecciones(dataSecciones.secciones || []);
     } catch (error) {
@@ -64,7 +67,9 @@ const [modalInscribir, setModalInscribir] = useState(false);
 
   const obtenerAniosEscolares = async () => {
     try {
-      const resAnios = await fetch(apiUrl+"/aniosescolares");
+      const resAnios = await fetch(apiUrl+"/aniosescolares",
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
       if (!resAnios.ok) throw new Error(`Error en la API: ${resAnios.status}`);
       const dataAnios = await resAnios.json();
       setAniosEscolares(Array.isArray(dataAnios.añosEscolares) ? dataAnios.añosEscolares : []);
@@ -82,7 +87,9 @@ const [modalInscribir, setModalInscribir] = useState(false);
       return;
     }
     try {
-      const res = await fetch(apiUrl+`/estudiantes?cedula=${cedula}`);
+      const res = await fetch(apiUrl+`/estudiantes?cedula=${cedula}`,
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
       const data = await res.json();
       setEstudiantes(data.estudiantes || []);
     } catch (error) {
@@ -105,7 +112,10 @@ const [modalInscribir, setModalInscribir] = useState(false);
     try {
       const res = await fetch(apiUrl+"/inscribir-estudiante", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`
+
+        },
         body: JSON.stringify({
           cedula_estudiante: cedulaEstudiante,
           id_seccion: idSeccionSeleccionada,
@@ -135,7 +145,6 @@ const [modalInscribir, setModalInscribir] = useState(false);
   // --- ADMIN/GESTOR: Inscripciones registradas (solo para el listado de abajo) ---
   const fetchInscripciones = async () => {
     try {
-      const token = localStorage.getItem("token");
       let url = apiUrl+`/inscripciones-todas?`;
       if (filtroInscripcion) url += `filtro=${encodeURIComponent(filtroInscripcion)}`;
       const res = await fetch(url, { headers: { Authorization: `Bearer ${token}` } });
@@ -154,7 +163,6 @@ const [modalInscribir, setModalInscribir] = useState(false);
 
   const handleEliminarInscripcion = async (id) => {
     try {
-      const token = localStorage.getItem("token");
       const res = await fetch(apiUrl+`/inscripciones/${id}`, {
         method: "DELETE",
         headers: { Authorization: `Bearer ${token}` }
@@ -182,7 +190,7 @@ const [modalInscribir, setModalInscribir] = useState(false);
       return;
     }
     try {
-      const token = localStorage.getItem("token");
+  
       const res = await fetch(apiUrl+`/inscripciones/${editData.id_inscripcion}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
@@ -240,7 +248,9 @@ const [modalInscribir, setModalInscribir] = useState(false);
 
   const obtenerInscripcionesMaterias = async () => {
     try {
-      const res = await fetch(apiUrl+"/inscripciones");
+      const res = await fetch(apiUrl+"/inscripciones",
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
       const data = await res.json();
       setInscripcionesMaterias(data.inscripciones || []);
     } catch (error) {
@@ -250,7 +260,9 @@ const [modalInscribir, setModalInscribir] = useState(false);
 
   const obtenerMaterias = async () => {
     try {
-      const res = await fetch(apiUrl+`/inscripcion/${idInscripcionSeleccionada}/materias`);
+      const res = await fetch(apiUrl+`/inscripcion/${idInscripcionSeleccionada}/materias`,
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
       const data = await res.json();
 
       setEstudiante(data.estudiante || null);
@@ -307,7 +319,10 @@ const [modalInscribir, setModalInscribir] = useState(false);
     try {
       const res = await fetch(apiUrl+"/inscribirmateria", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`
+
+         },
         body: JSON.stringify({ id_inscripcion: idInscripcionSeleccionada, materias: todas.map(m => m.id) }),
       });
 

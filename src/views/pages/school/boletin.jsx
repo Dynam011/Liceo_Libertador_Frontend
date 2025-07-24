@@ -5,7 +5,7 @@ const ORDEN_ANIOS = [
 ];
 
 const API_URL = apiUrl;
-
+const token = localStorage.getItem("token");
 const BoletinPorSeccion = () => {
   const [aniosSecciones, setAniosSecciones] = useState({});
   const [seccionSeleccionada, setSeccionSeleccionada] = useState('');
@@ -19,7 +19,13 @@ const BoletinPorSeccion = () => {
 
   // Cargar años y secciones al montar
   useEffect(() => {
-    fetch(`${API_URL}/anios-secciones`)
+    fetch(`${API_URL}/anios-secciones`,
+      {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      }
+    )
       .then(res => res.json())
       .then(data => setAniosSecciones(data.anios_secciones || {}));
   }, []);
@@ -27,7 +33,13 @@ const BoletinPorSeccion = () => {
   // Cargar estudiantes al seleccionar sección
   useEffect(() => {
     if (seccionSeleccionada) {
-      fetch(`${API_URL}/estudiantes-por-seccion?id_seccion=${seccionSeleccionada}`)
+      fetch(`${API_URL}/estudiantes-por-seccion?id_seccion=${seccionSeleccionada}`,
+        {
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        }
+      )
         .then(res => res.json())
         .then(data => setEstudiantes(data.estudiantes || []));
     } else {
@@ -38,7 +50,12 @@ const BoletinPorSeccion = () => {
   const generarBoletin = async (cedula) => {
     setLoadingId(cedula);
     try {
-      const response = await fetch(`${API_URL}/boletin/${cedula}`, { method: 'GET' });
+      const response = await fetch(`${API_URL}/boletin/${cedula}`, { method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+
+       });
       if (response.ok) {
         const blob = await response.blob();
         const url = window.URL.createObjectURL(blob);

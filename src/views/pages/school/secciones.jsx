@@ -17,6 +17,9 @@ import {
   CAlert
 } from '@coreui/react';
 import {apiUrl} from "../../../api"
+
+const token = localStorage.getItem("token");
+
 export default function Secciones() {
   const [secciones, setSecciones] = useState([]);
   const [form, setForm] = useState({ nombre: '', id_año: '' });
@@ -28,7 +31,13 @@ export default function Secciones() {
 
   // Cargar secciones al montar
   useEffect(() => {
-    fetch(apiUrl+'/crud-secciones')
+    fetch(apiUrl+'/crud-secciones',
+      {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      }
+    )
       .then(r => r.json())
       .then(setSecciones);
   }, []);
@@ -43,7 +52,9 @@ export default function Secciones() {
     if (editId) {
       const res = await fetch(apiUrl+`/crud-secciones/${editId}`, {
         method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+         },
         body: JSON.stringify(form)
       });
       if (res.ok) {
@@ -55,7 +66,9 @@ export default function Secciones() {
     } else {
       const res = await fetch(apiUrl+'/crud-secciones', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+         },
         body: JSON.stringify(form)
       });
       if (res.ok) {
@@ -75,7 +88,11 @@ export default function Secciones() {
 
   // Eliminar sección
   const handleDelete = async (id) => {
-    await fetch(apiUrl+`/crud-secciones/${id}`, { method: 'DELETE' });
+    await fetch(apiUrl+`/crud-secciones/${id}`, { method: 'DELETE' ,
+      headers: {
+        'Authorization': `Bearer ${token}`
+      }
+    });
     setSecciones(secciones.filter(s => s.id_seccion !== id));
     setModal({ visible: true, mensaje: "Sección eliminada", tipo: "success" });
   };

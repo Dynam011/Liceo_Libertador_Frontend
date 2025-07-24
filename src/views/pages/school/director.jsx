@@ -6,7 +6,7 @@ import {
 } from "@coreui/react";
 import { apiUrl } from "../../../api";
 const API = apiUrl;
-
+const token = localStorage.getItem("token");
 // --- MODAL para crear director ---
 function ModalCrearDirector({ visible, onClose, onSuccess }) {
   const [director, setDirector] = useState({
@@ -38,7 +38,9 @@ function ModalCrearDirector({ visible, onClose, onSuccess }) {
     try {
       const res = await fetch(`${API}/registrar-director`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { "Content-Type": "application/json",
+          'Authorization': `Bearer ${token}`
+         },
         body: JSON.stringify(director)
       });
       const data = await res.json();
@@ -138,11 +140,23 @@ function ModalAsignarDirectorAnioEscolar({ visible, onClose, onSuccess }) {
   const [tipoMensaje, setTipoMensaje] = useState("success");
 
   useEffect(() => {
-    fetch(`${API}/directores`)
+    fetch(`${API}/directores`,
+      {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      }
+    )
       .then(res => res.json())
       .then(data => setDirectores(data.directores || []))
       .catch(() => setDirectores([]));
-    fetch(`${API}/admin-anios-escolares`)
+    fetch(`${API}/admin-anios-escolares`,
+      {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      }
+    )
       .then(res => res.json())
       .then(data => setAniosEscolares(data.aniosEscolaresAdmin || []))
       .catch(() => setAniosEscolares([]));
@@ -165,7 +179,9 @@ function ModalAsignarDirectorAnioEscolar({ visible, onClose, onSuccess }) {
     try {
       const res = await fetch(`${API}/asignar-director-anio-escolar`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { "Content-Type": "application/json",
+          'Authorization': `Bearer ${token}`
+         },
         body: JSON.stringify(form)
       });
       const data = await res.json();
@@ -272,7 +288,13 @@ function ListaDirectores() {
   const totalPaginas = Math.ceil(directores.length / porPagina);
 
   const fetchDirectores = async (search = "") => {
-    const res = await fetch(apiUrl+`/directoresconanio${search ? `?search=${encodeURIComponent(search)}` : ""}`);
+    const res = await fetch(apiUrl+`/directoresconanio${search ? `?search=${encodeURIComponent(search)}` : ""}`,
+      {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      }
+    );
     const data = await res.json();
     setDirectores(data.directores || []);
     setPagina(1);
@@ -316,7 +338,9 @@ function ListaDirectores() {
     };
     const res = await fetch(apiUrl+`/directoreseditar/${editando}`, {
       method: "PUT",
-      headers: { "Content-Type": "application/json" },
+      headers: { "Content-Type": "application/json"
+        , 'Authorization': `Bearer ${token}`
+       },
       body: JSON.stringify(formToSend)
     });
     const data = await res.json();
@@ -337,7 +361,11 @@ function ListaDirectores() {
 
   // Confirmar eliminación
   const confirmarEliminar = async () => {
-    const res = await fetch(apiUrl+`/directoreseliminar/${idAEliminar}`, { method: "DELETE" });
+    const res = await fetch(apiUrl+`/directoreseliminar/${idAEliminar}`, { method: "DELETE",
+      headers: {
+        'Authorization': `Bearer ${token}`
+      }
+     });
     if (res.ok) {
       setMensaje("Director eliminado");
       fetchDirectores(search);

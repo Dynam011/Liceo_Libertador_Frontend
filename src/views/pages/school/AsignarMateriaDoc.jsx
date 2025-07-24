@@ -15,6 +15,7 @@ import {
   CFormInput,
 } from "@coreui/react";
 import {apiUrl} from "../../../api"
+const token = localStorage.getItem("token");
 const AsignarMaterias = () => {
   // Función para normalizar y eliminar acentos correctamente, insensible a mayúsculas/minúsculas
   const normalizar = (texto) =>
@@ -44,7 +45,13 @@ const AsignarMaterias = () => {
 
   const obtenerDatosParaAsignar = async () => {
     try {
-      const res = await fetch(apiUrl+"/asignar-materias");
+      const res = await fetch(apiUrl+"/asignar-materias",
+        {
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        }
+      );
       const data = await res.json();
       setDocentes(data.docentes || []);
       setAñosMateria(data.añosMateria || []);
@@ -74,7 +81,7 @@ const AsignarMaterias = () => {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
+          Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify({
           id_docente: idDocenteSeleccionado,

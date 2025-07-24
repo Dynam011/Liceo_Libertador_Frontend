@@ -14,6 +14,7 @@ import {
   CAlert,
 } from "@coreui/react";
 import {apiUrl} from "../../../api"
+const token = localStorage.getItem("token");
 const BuscarEstudiante = () => {
   const [cedula, setCedula] = useState("");
   const [estudiante, setEstudiante] = useState(null);
@@ -28,7 +29,13 @@ const BuscarEstudiante = () => {
     setLoading(true);
     setNoEncontrado(false);
     try {
-      const res = await fetch(apiUrl+`/estudiante/${cedula}`);
+      const res = await fetch(apiUrl+`/estudiante/${cedula}`,
+        {
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        }
+      );
       if (res.status === 404) {
         setEstudiante(null);
         setNoEncontrado(true);

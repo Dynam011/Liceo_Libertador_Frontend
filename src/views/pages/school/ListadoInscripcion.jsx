@@ -6,6 +6,7 @@ import {
   CModal, CModalHeader, CModalTitle, CModalBody, CModalFooter
 } from "@coreui/react";
 import {apiUrl} from "../../../api"
+const token = localStorage.getItem("token");
 const MateriasInscritasAdmin = () => {
   // Función para normalizar texto (quita acentos y pasa a minúsculas)
   const normalizar = (texto) => {
@@ -43,7 +44,7 @@ const MateriasInscritasAdmin = () => {
   const fetchEstudiantes = async () => {
     setLoading(true);
     try {
-      const token = localStorage.getItem("token");
+
       const res = await fetch(apiUrl+`/estudiantes-materias-inscritas`, {
         headers: { Authorization: `Bearer ${token}` }
       });
@@ -72,7 +73,13 @@ const MateriasInscritasAdmin = () => {
   // Obtener años escolares para el select
   const fetchAniosEscolares = async () => {
     try {
-      const res = await fetch(apiUrl+"/aniosescolares");
+      const res = await fetch(apiUrl+"/aniosescolares",
+        {
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        }
+      );
       const data = await res.json();
       setAniosEscolares(data.añosEscolares || []);
     } catch (error) {
@@ -94,7 +101,6 @@ const MateriasInscritasAdmin = () => {
   const handleEliminar = async (id) => {
     
     try {
-      const token = localStorage.getItem("token");
       const res = await fetch(apiUrl+`/materias-inscritas/${id}`, {
         method: "DELETE",
         headers: { Authorization: `Bearer ${token}` }

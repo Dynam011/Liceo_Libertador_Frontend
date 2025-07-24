@@ -5,6 +5,7 @@ import {
   CModal, CModalHeader, CModalTitle, CModalBody, CModalFooter, CFormInput, CFormSelect, CAlert, CSpinner
 } from "@coreui/react";
 import {apiUrl} from "../../../api"
+const token = localStorage.getItem("token");
 const EstudiantesAdmin = () => {
   const [estudiantes, setEstudiantes] = useState([]);
   const [page, setPage] = useState(1);
@@ -24,8 +25,20 @@ const EstudiantesAdmin = () => {
   const fetchCatalogos = async () => {
     try {
       const [tdRes, nacRes] = await Promise.all([
-        fetch(apiUrl+"/tipos-documento"),
-        fetch(apiUrl+"/nacionalidades")
+        fetch(apiUrl+"/tipos-documento",
+          {
+            headers: {
+              'Authorization': `Bearer ${token}`
+            }
+          }
+        ),
+        fetch(apiUrl+"/nacionalidades",
+          {
+            headers: {
+              'Authorization': `Bearer ${token}`
+            }
+          }
+        )
       ]);
       setTiposDocumento(await tdRes.json());
       setNacionalidades(await nacRes.json());
@@ -39,7 +52,14 @@ const EstudiantesAdmin = () => {
   const fetchEstudiantes = async (pagina = 1) => {
     setLoading(true);
     try {
-      const res = await fetch(apiUrl+`/estudiante?page=${pagina}&limit=1000`);
+      const res = await fetch(apiUrl+`/estudiante?page=${pagina}&limit=1000`
+        ,
+        {
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        }
+      );
       const data = await res.json();
       setEstudiantes(data.estudiantes || []);
       setTotalPages(data.totalPages || 1);
@@ -57,7 +77,9 @@ const EstudiantesAdmin = () => {
   const handleDelete = async () => {
     try {
       const res = await fetch(apiUrl+`/estudiante/${estudianteDelete.cedula}`, {
-        method: "DELETE"
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" ,
+          'Authorization': `Bearer ${token}`}
       });
       const data = await res.json();
       setMensaje(data.mensaje);
@@ -74,7 +96,9 @@ const EstudiantesAdmin = () => {
     try {
       const res = await fetch(apiUrl+`/estudiante/${estudianteEdit.cedula}`, {
         method: "PUT",
-        headers: { "Content-Type": "application/json" },
+        headers: { "Content-Type": "application/json",
+          'Authorization': `Bearer ${token}`
+         },
         body: JSON.stringify(estudianteEdit)
       });
       const data = await res.json();

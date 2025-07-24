@@ -22,7 +22,14 @@ const Dashboard = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch(apiUrl+"/dashboardd")
+    const token = localStorage.getItem("token");
+    fetch(apiUrl+"/dashboardd", {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      })
       .then(res => {
         if (!res.ok) throw new Error('Error en la respuesta del servidor');
         return res.json();

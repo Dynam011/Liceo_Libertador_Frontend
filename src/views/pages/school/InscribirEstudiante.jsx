@@ -6,6 +6,9 @@ import {
   CModal, CModalHeader, CModalTitle, CModalBody, CModalFooter
 } from "@coreui/react";
 import {apiUrl} from "../../../api"
+
+const token = localStorage.getItem("token");
+
 const InscribirEstudiante = () => {
   const [estudiantes, setEstudiantes] = useState([]);
   const [secciones, setSecciones] = useState([]);
@@ -38,7 +41,13 @@ const InscribirEstudiante = () => {
 
   const obtenerSecciones = async () => {
     try {
-      const resSecciones = await fetch(apiUrl+"/secciones");
+      const resSecciones = await fetch(apiUrl+"/secciones",
+        {
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        }
+      );
       const dataSecciones = await resSecciones.json();
       setSecciones(dataSecciones.secciones || []);
     } catch (error) {
@@ -48,7 +57,13 @@ const InscribirEstudiante = () => {
 
   const obtenerAniosEscolares = async () => {
     try {
-      const resAnios = await fetch(apiUrl+"/aniosescolares");
+      const resAnios = await fetch(apiUrl+"/aniosescolares",
+        {
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        }
+      );
       if (!resAnios.ok) throw new Error(`Error en la API: ${resAnios.status}`);
       const dataAnios = await resAnios.json();
       setAniosEscolares(Array.isArray(dataAnios.añosEscolares) ? dataAnios.añosEscolares : []);
@@ -66,7 +81,13 @@ const InscribirEstudiante = () => {
       return;
     }
     try {
-      const res = await fetch(apiUrl+`/estudiantes?cedula=${cedula}`);
+      const res = await fetch(apiUrl+`/estudiantes?cedula=${cedula}`,
+        {
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        }
+      );
       const data = await res.json();
       setEstudiantes(data.estudiantes || []);
     } catch (error) {
@@ -89,7 +110,10 @@ const InscribirEstudiante = () => {
     try {
       const res = await fetch(apiUrl+"/inscribir-estudiante", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { "Content-Type": "application/json",
+          'Authorization': `Bearer ${token}`
+
+         },
         body: JSON.stringify({
           cedula_estudiante: cedulaEstudiante,
           id_seccion: idSeccionSeleccionada,
@@ -116,7 +140,7 @@ const InscribirEstudiante = () => {
   // --- ADMIN: Inscripciones registradas ---
   const fetchInscripciones = async () => {
     try {
-      const token = localStorage.getItem("token");
+      
       let url = apiUrl+`/inscripciones-todas?`;
       if (filtroInscripcion) url += `filtro=${encodeURIComponent(filtroInscripcion)}`;
       const res = await fetch(url, { headers: { Authorization: `Bearer ${token}` } });
@@ -135,7 +159,7 @@ const InscribirEstudiante = () => {
   const handleEliminarInscripcion = async (id) => {
     
     try {
-      const token = localStorage.getItem("token");
+     
       const res = await fetch(apiUrl+`/inscripciones/${id}`, {
         method: "DELETE",
         headers: { Authorization: `Bearer ${token}` }
@@ -159,7 +183,7 @@ const InscribirEstudiante = () => {
       return;
     }
     try {
-      const token = localStorage.getItem("token");
+
       const res = await fetch(apiUrl+`/inscripciones/${editData.id_inscripcion}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },

@@ -6,7 +6,7 @@ import {
 } from "@coreui/react";
 import {apiUrl} from "../../../api"
 const ROLES = ["usuario", "admin","gestor"];
-
+const token = localStorage.getItem("token");
 const tablaEstilos = `
 .tabla-usuarios th, .tabla-usuarios td {
   text-align: center !important;
@@ -38,7 +38,13 @@ export default function UsuariosAdmin({ usuarioActual }) {
   const porPagina = 5;
 
   useEffect(() => {
-    fetch(apiUrl+"/usuarios")
+    fetch(apiUrl+"/usuarios",
+      {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      }
+    )
       .then(res => res.json())
       .then(data => setUsuarios(Array.isArray(data) ? data : []))
       .catch(() => setUsuarios([]));
@@ -74,7 +80,9 @@ export default function UsuariosAdmin({ usuarioActual }) {
     try {
       const res = await fetch(apiUrl+`/usuarios/${cedula}`, {
         method: "PUT",
-        headers: { "Content-Type": "application/json" },
+        headers: { "Content-Type": "application/json",
+          'Authorization': `Bearer ${token}`
+         },
         body: JSON.stringify(editForm)
       });
       if (res.ok) {
@@ -102,7 +110,10 @@ export default function UsuariosAdmin({ usuarioActual }) {
     setShowModal(false);
     try {
       const res = await fetch(apiUrl+`/usuarios/${cedulaAEliminar}`, {
-        method: "DELETE"
+        method: "DELETE",
+        headers: { "Content-Type": "application/json",
+          'Authorization': `Bearer ${token}`
+         }
       });
       if (res.ok) {
         setMensaje("Usuario eliminado correctamente");

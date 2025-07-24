@@ -5,7 +5,7 @@ import {
   CPagination, CPaginationItem, CModal, CModalHeader, CModalTitle, CModalBody, CModalFooter, CCol, CRow
 } from "@coreui/react";
 import { apiUrl } from "../../../api";
-
+const token = localStorage.getItem("token");
 const CrudCortes = () => {
   const [nombre, setNombre] = useState("");
   const [fechaInicio, setFechaInicio] = useState("");
@@ -30,7 +30,13 @@ const CrudCortes = () => {
 
   // Obtener cortes al cargar
   const fetchCortes = async () => {
-    const res = await fetch(apiUrl + "/listarcortes");
+    const res = await fetch(apiUrl + "/listarcortes",
+      {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      }
+    );
     const data = await res.json();
     setCortes(data.cortes || []);
   };
@@ -52,7 +58,9 @@ const CrudCortes = () => {
     try {
       const res = await fetch(apiUrl + "/crearcortes", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { "Content-Type": "application/json",
+          'Authorization': `Bearer ${token}`
+         },
         body: JSON.stringify({
           nombre,
           fecha_inicio: fechaInicio,
@@ -89,6 +97,8 @@ const CrudCortes = () => {
     try {
       const res = await fetch(apiUrl + `/eliminarcortes/${idEliminar}`, {
         method: "DELETE",
+        headers: { "Content-Type": "application/json" ,
+          'Authorization': `Bearer ${token}`}
       });
       const data = await res.json();
       if (res.ok) {
@@ -135,7 +145,9 @@ const CrudCortes = () => {
     try {
       const res = await fetch(apiUrl + `/editarcortes/${editId}`, {
         method: "PUT",
-        headers: { "Content-Type": "application/json" },
+        headers: { "Content-Type": "application/json",
+          'Authorization': `Bearer ${token}`
+         },
         body: JSON.stringify({
           nombre: editNombre,
           fecha_inicio: editFechaInicio,
