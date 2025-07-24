@@ -49,7 +49,13 @@ const AsignacionesDocenteAdmin = () => {
   const fetchAsignaciones = async () => {
     setLoading(true);
     try {
-      const res = await fetch(apiUrl+`/asignaciones-docente`);
+      const res = await fetch(apiUrl+`/asignaciones-docente`,
+        {
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        }
+      );
       const data = await res.json();
       setAsignaciones(data.asignaciones || []);
     } catch {
