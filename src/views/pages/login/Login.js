@@ -143,7 +143,7 @@ const Login = () => {
                       </CCol>
                       <CCol xs={6} className="text-end">
                         <CButton color="link" className="px-0 text-info">
-                          <Link to="/lista">
+                          <Link to="/recuperar/contra">
                             ¿Olvidaste tu contraseña?
                           </Link>
                         </CButton>
