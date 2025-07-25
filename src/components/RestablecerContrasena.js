@@ -14,6 +14,7 @@ import {
   CCardHeader
 } from "@coreui/react";
 import liceo2 from 'src/assets/images/liceo2.webp';
+import {apiUrl} from "./../api"
 const RestablecerContrasena = () => {
   const { token } = useParams();
   const [nuevaContrasena, setNuevaContrasena] = useState("");
@@ -36,7 +37,7 @@ useEffect(() => {
       return;
     }
     try {
-      const res = await fetch(`http://localhost:4000/restablecer/${token}`, {
+      const res = await fetch(apiUrl+`/restablecer/${token}`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ nuevaContrasena })
