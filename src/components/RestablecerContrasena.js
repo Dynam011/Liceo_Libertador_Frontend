@@ -13,7 +13,7 @@ import {
   CCardTitle,
   CCardHeader
 } from "@coreui/react";
-
+import liceo2 from 'src/assets/images/liceo2.webp';
 const RestablecerContrasena = () => {
   const { token } = useParams();
   const [nuevaContrasena, setNuevaContrasena] = useState("");
@@ -24,7 +24,7 @@ const RestablecerContrasena = () => {
   // Cambiar fondo del body
 useEffect(() => {
   const original = document.body.style.background;
-  document.body.style.background = 'url("/src/assets/images/liceo2.webp") center center / cover no-repeat fixed';
+  document.body.style.background = `url(${liceo2}) center center / cover no-repeat fixed`;
   return () => { document.body.style.background = original; };
 }, []);
 
